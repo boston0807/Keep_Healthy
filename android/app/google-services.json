@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "765483883577",
+    "project_id": "keephealthy-ad6fc",
+    "storage_bucket": "keephealthy-ad6fc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:765483883577:android:14613d4cc173b5423281e8",
+        "android_client_info": {
+          "package_name": "com.example.keep_healthy"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "765483883577-s47hgjtortq24bnmknd5q9sktc5fttpv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCe8inPXTbqOdrEbEQkx1jZrzhYTSVsSPM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "765483883577-s47hgjtortq24bnmknd5q9sktc5fttpv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

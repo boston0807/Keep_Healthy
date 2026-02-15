@@ -47,6 +47,12 @@ class _MenuPageState extends State<MenuPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Keep Healthy"),
+        actions: [
+          IconButton(onPressed: () {
+            auth.FirebaseAuth.instance.signOut();
+            Navigator.pushNamedAndRemoveUntil(context, '/login-page', (_) => false);
+          }, icon: Icon(Icons.logout))
+        ],
       ),
       body: Center(
         child: Column(

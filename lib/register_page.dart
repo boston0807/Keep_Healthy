@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:keep_healthy/menu_page.dart';
 import 'package:keep_healthy/services/auth_service.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -169,12 +170,10 @@ class _RegisterPageState extends State<RegisterPage> {
                       password,
                       passwordConfirm,
                     );
-                      Navigator.pushNamed(context, '/menu-page');
-
+                    
+                      Navigator.pushNamedAndRemoveUntil(context, '/menu-page', (_) => false);
                     }catch (e) {
-
-                      print("Register error: $e");
-
+                      
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text(e.toString()))
                       );

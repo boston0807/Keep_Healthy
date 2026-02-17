@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
-import 'user.dart';
-import 'services/database_service.dart';
+import '../models/user.dart';
+import '../services/database_service.dart';
 
 class MenuPage extends StatefulWidget {
   const MenuPage({super.key});

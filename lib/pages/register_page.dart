@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:keep_healthy/menu_page.dart';
+import 'package:keep_healthy/pages/menu_page.dart';
 import 'package:keep_healthy/services/auth_service.dart';
 
 class RegisterPage extends StatefulWidget {

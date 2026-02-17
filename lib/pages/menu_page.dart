@@ -37,34 +37,30 @@ class _MenuPageState extends State<MenuPage> {
   Widget build(BuildContext context) {
 
     if (isLoading) {
-      return Scaffold(
-        body: Center(
+      return const Center(
           child: CircularProgressIndicator(),
-        ),
-      );
+        );
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Keep Healthy"),
-        actions: [
-          IconButton(onPressed: () {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+
+      children: [
+        Text("Username: ${userAcc!.username}"),
+        Text("Name: ${userAcc!.name} ${userAcc!.surName}"),
+
+        ElevatedButton(
+          onPressed: () {
             auth.FirebaseAuth.instance.signOut();
-            Navigator.pushNamedAndRemoveUntil(context, '/login-page', (_) => false);
-          }, icon: Icon(Icons.logout))
-        ],
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-
-            Text("Username: ${userAcc!.username}"),
-            Text("Name: ${userAcc!.name} ${userAcc!.sureName}"),
-
-          ],
-        ),
-      ),
+            Navigator.pushNamedAndRemoveUntil(
+              context,
+              '/login-page',
+              (_) => false
+            );
+          },
+          child: const Text('Logout'),
+        )
+      ],
     );
   }
 }

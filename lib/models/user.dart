@@ -5,11 +5,11 @@ import '../services/database_service.dart';
 class User {
   String username;
   String name;
-  String sureName;
+  String surName;
   String email;
   dynamic loginTime ;
 
-  User({required this.username, required this.name, required this.sureName, required this.email}){
+  User({required this.username, required this.name, required this.surName, required this.email}){
     loginTime = DateTime.now();
   }
 
@@ -17,6 +17,6 @@ class User {
     DatabaseService databaseService = DatabaseService();
     DocumentSnapshot doc = await databaseService.getUserFuture(uID);
     final data = doc.data() as Map<String, dynamic> ;
-    return User(username: data['user_name'], name: data['first_name'], sureName: data['sur_name'], email: data['email']);
+    return User(username: data['user_name'], name: data['first_name'], surName: data['sur_name'], email: data['email']);
   }
 }

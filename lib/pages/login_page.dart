@@ -85,7 +85,7 @@ class _LoginPageState extends State<LoginPage> {
                   onPressed: () async{
                     try{
                       await FirebaseAuth.instance.signInWithEmailAndPassword(email: emailController.text, password: passwordController.text);
-                      Navigator.pushNamedAndRemoveUntil(context, '/menu-page', (_) => false);
+                      Navigator.pushNamedAndRemoveUntil(context, '/main-screen', (_) => false);
                     }catch (e){
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
                     }
@@ -107,7 +107,7 @@ class _LoginPageState extends State<LoginPage> {
                     "Login",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 30,
+                      fontSize: 22,
                     ),
                   ),
                 ),

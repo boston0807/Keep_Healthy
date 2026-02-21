@@ -29,7 +29,14 @@ class MyApp extends StatelessWidget {
         '/menu-page':(context) => MenuPage(),
         '/login-page':(context) => LoginPage(),
         '/register-page':(context) => RegisterPage(),
-        '/main-screen':(context) => MainScreen(),
+        '/main-screen':(context) {
+          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+
+          return MainScreen(
+            nutrientImage: args?['nutrientImage'] ?? "",
+            initializeIndex: args?['initializeIndex']?? 0,
+          );
+        },
       }, 
     );
   }

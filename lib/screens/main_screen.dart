@@ -1,24 +1,36 @@
 import 'package:flutter/material.dart';
 import '../pages/menu_page.dart';
 import '../pages/camera_page.dart';
+import '../pages/test_picture_page.dart';
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+  final String nutrientImage;
+  final int initializeIndex;
+  const MainScreen({super.key, required this.initializeIndex , required this.nutrientImage});
 
   @override
   State<MainScreen> createState() => _MainScreenState();
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int indexBottomNav = 0;
-  List widgetOption = [MenuPage(), Text('Dashboard'), Text('Setting'), Text('Info')];
+  late int indexBottomNav ;
+  late String nutrientImagePath;
+  late List widgetOption ;
+
+  @override 
+  void initState(){
+    super.initState();
+    indexBottomNav = widget.initializeIndex;
+    nutrientImagePath = widget.nutrientImage ;
+    widgetOption = [MenuPage(), Text('Dashboard'), SizedBox(), Text('Setting'), Text('Info')];
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Keep Healthy')),
       body: Center(
-        child: widgetOption[indexBottomNav],
+        child: nutrientImagePath.isEmpty ? widgetOption[indexBottomNav] : TestPicturePage(imagePath: nutrientImagePath,)
       ),
       bottomNavigationBar: BottomNavigationBar(items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
@@ -36,6 +48,7 @@ class _MainScreenState extends State<MainScreen> {
         } 
 
         setState(() {
+          nutrientImagePath = "";
           indexBottomNav = value;
         });
       },
@@ -43,7 +56,7 @@ class _MainScreenState extends State<MainScreen> {
       selectedItemColor: Colors.white,
       unselectedItemColor: Colors.white70,
       )
-    );
+    ); 
   }
 
   void _pushToCamera() {

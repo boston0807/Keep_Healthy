@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:keep_healthy/pages/test_picture_page.dart';
+import 'package:keep_healthy/screens/main_screen.dart';
 
 class CameraPage extends StatefulWidget {
   const CameraPage({super.key});
@@ -26,6 +28,15 @@ class CameraPageState extends State<CameraPage> {
     _controller = CameraController(_cameras![1], ResolutionPreset.medium);
     _initializeControllerFuture = _controller.initialize();
     setState(() {});
+  }
+
+  void switchCamera() {
+    isFrontCamera = !isFrontCamera ;
+    _controller = CameraController(isFrontCamera ? _cameras![0] : _cameras![1], ResolutionPreset.medium);
+    _initializeControllerFuture = _controller.initialize();
+    setState(() {
+      
+    });
   }
 
   @override
@@ -65,14 +76,14 @@ class CameraPageState extends State<CameraPage> {
                   alignment: Alignment.center,
                   children: [
                     IconButton(
-                      onPressed: () {},
+                      onPressed: takePicture,
                       icon: const Icon(Icons.circle, color: Color.fromARGB(255, 255, 255, 255)),
                       iconSize: 80,
                     ),
                     Positioned(
                       right: 70,
                       child: IconButton(
-                        onPressed: () {},
+                        onPressed: switchCamera,
                         icon: const Icon(Icons.cameraswitch_rounded, color: Colors.white),
                       ),
                     ),
@@ -89,5 +100,22 @@ class CameraPageState extends State<CameraPage> {
       }),
       backgroundColor: const Color.fromARGB(255, 0, 0, 0),
     );
+  }
+    Future takePicture() async{
+    if (!_controller.value.isInitialized){
+      return null;
+    }
+    if (_controller.value.isTakingPicture){
+      return null;
+    }
+
+    try{
+      XFile image = await _controller.takePicture();
+      if (!mounted) return;
+      await Navigator.pushNamedAndRemoveUntil(context, '/main-screen', (_) => false, arguments: {'nutrientImage': image.path, 'initializeIndex': 0});
+    } on CameraException catch (e) {
+      debugPrint("Error with camera $e");
+      return null;
+    }
   }
 }

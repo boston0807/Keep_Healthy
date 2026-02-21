@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../pages/menu_page.dart';
+import '../pages/camera_page.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -10,7 +11,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int indexBottomNav = 0;
-  List widgetOption = const [MenuPage(), Text('Dashboard'), Text('Camera'), Text('Setting'), Text('Info')];
+  List widgetOption = [MenuPage(), Text('Dashboard'), Text('Setting'), Text('Info')];
 
   @override
   Widget build(BuildContext context) {
@@ -28,11 +29,24 @@ class _MainScreenState extends State<MainScreen> {
       ],
       type: BottomNavigationBarType.fixed,
       currentIndex: indexBottomNav,
-      onTap: (value) => setState(() => indexBottomNav = value),
+      onTap: (value) {
+        if (value == 2){
+          _pushToCamera();
+          return;
+        } 
+
+        setState(() {
+          indexBottomNav = value;
+        });
+      },
       backgroundColor: const Color(0xFF10297B),
       selectedItemColor: Colors.white,
       unselectedItemColor: Colors.white70,
-      ),
+      )
     );
+  }
+
+  void _pushToCamera() {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => CameraPage()));
   }
 }

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:keep_healthy/pages/setting_page.dart';
 import '../pages/menu_page.dart';
 import '../pages/camera_page.dart';
 import '../pages/dash_board.dart';
-
+import '../models/user.dart';
+import 'package:firebase_auth/firebase_auth.dart' as auth;
 class MainScreen extends StatefulWidget {
   final String nutrientImage;
   final int initializeIndex;
@@ -13,23 +15,48 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+  User? userAcc ; 
   late int indexBottomNav ;
   late String nutrientImagePath;
   late List widgetOption ;
 
-  @override 
-  void initState(){
+  @override
+  void initState() {
     super.initState();
     indexBottomNav = widget.initializeIndex;
-    nutrientImagePath = widget.nutrientImage ;
-    widgetOption = [MenuPage(), Text('Dashboard'), SizedBox(), Text('Setting'), Text('Info')];
+    nutrientImagePath = widget.nutrientImage;
+
+    final firebaseUser = auth.FirebaseAuth.instance.currentUser;
+
+    if (firebaseUser != null) {
+      loadUser(firebaseUser.uid);
+    } else {
+      auth.FirebaseAuth.instance.authStateChanges().listen((user) {
+        if (user != null) {
+          loadUser(user.uid);
+        }
+      });
+    }
+  }
+
+  Future<void> loadUser(String uID) async{
+    User user = await User.createUser(uID); 
+    setState(() {
+    userAcc = user;
+    widgetOption = [MenuPage(user: userAcc!,), Text('Dashboard'), SizedBox(), SettingPage(user: userAcc!,), Text('Info')];
+    });  
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Keep Healthy')),
-      body: Center(
+      body: (userAcc == null) ? 
+      const Center(
+        child: CircularProgressIndicator()
+        )
+      :
+      Center(
         child: nutrientImagePath.isEmpty ? widgetOption[indexBottomNav] : DashBoard(imagePath: nutrientImagePath,)
       ),
       bottomNavigationBar: BottomNavigationBar(items: const [

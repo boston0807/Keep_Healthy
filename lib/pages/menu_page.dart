@@ -6,49 +6,29 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
 class MenuPage extends StatefulWidget {
-  const MenuPage({super.key});
+  final User user; 
+  const MenuPage({super.key, required this.user});
 
   @override
   State<MenuPage> createState() => _MenuPageState();
 }
 
 class _MenuPageState extends State<MenuPage> {
-  User? userAcc;
-  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    loadUser();
   }
 
-  Future<void> loadUser() async {
-
-    final uid = auth.FirebaseAuth.instance.currentUser!.uid;
-
-    User user = await User.createUser(uid);
-
-    setState(() {
-      userAcc = user;
-      isLoading = false;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
-
-    if (isLoading) {
-      return const Center(
-          child: CircularProgressIndicator(),
-        );
-    }
-
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
 
       children: [
-        Text("Username: ${userAcc!.username}"),
-        Text("Name: ${userAcc!.name} ${userAcc!.surName}"),
+        Text("Username: ${widget.user.username}"),
+        Text("Name: ${widget.user.name} ${widget.user .surName}"),
 
         ElevatedButton(
           onPressed: () {

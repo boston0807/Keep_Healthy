@@ -26,7 +26,6 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: FirebaseAuth.instance.currentUser == null ? '/login-page' : '/main-screen',
       routes: {
-        '/menu-page':(context) => MenuPage(),
         '/login-page':(context) => LoginPage(),
         '/register-page':(context) => RegisterPage(),
         '/main-screen':(context) {

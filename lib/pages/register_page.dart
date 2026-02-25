@@ -171,7 +171,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       passwordConfirm,
                     );
                     
-                      Navigator.pushNamedAndRemoveUntil(context, '/menu-page', (_) => false);
+                      Navigator.pushNamedAndRemoveUntil(context, '/main-screen', (_) => false);
                     }catch (e) {
                       
                       ScaffoldMessenger.of(context).showSnackBar(

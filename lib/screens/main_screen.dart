@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../pages/menu_page.dart';
 import '../pages/camera_page.dart';
-import '../pages/test_picture_page.dart';
+import '../pages/dash_board.dart';
 
 class MainScreen extends StatefulWidget {
   final String nutrientImage;
@@ -30,7 +30,7 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Keep Healthy')),
       body: Center(
-        child: nutrientImagePath.isEmpty ? widgetOption[indexBottomNav] : TestPicturePage(imagePath: nutrientImagePath,)
+        child: nutrientImagePath.isEmpty ? widgetOption[indexBottomNav] : DashBoard(imagePath: nutrientImagePath,)
       ),
       bottomNavigationBar: BottomNavigationBar(items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),

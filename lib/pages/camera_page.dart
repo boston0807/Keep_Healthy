@@ -1,10 +1,6 @@
 import 'dart:async';
-import 'dart:io';
-
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:keep_healthy/pages/test_picture_page.dart';
-import 'package:keep_healthy/screens/main_screen.dart';
 
 class CameraPage extends StatefulWidget {
   const CameraPage({super.key});
@@ -112,7 +108,7 @@ class CameraPageState extends State<CameraPage> {
     try{
       XFile image = await _controller.takePicture();
       if (!mounted) return;
-      await Navigator.pushNamedAndRemoveUntil(context, '/main-screen', (_) => false, arguments: {'nutrientImage': image.path, 'initializeIndex': 0});
+      Navigator.pushNamedAndRemoveUntil(context, '/main-screen', (_) => false, arguments: {'nutrientImage': image.path, 'initializeIndex': 0});
     } on CameraException catch (e) {
       debugPrint("Error with camera $e");
       return null;

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import '../models/user.dart';
 import '../services/database_service.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class MenuPage extends StatefulWidget {
   const MenuPage({super.key});
@@ -11,7 +13,6 @@ class MenuPage extends StatefulWidget {
 }
 
 class _MenuPageState extends State<MenuPage> {
-
   User? userAcc;
   bool isLoading = true;
 
@@ -59,8 +60,16 @@ class _MenuPageState extends State<MenuPage> {
             );
           },
           child: const Text('Logout'),
-        )
+        ),
+        ElevatedButton(onPressed: processData, child: Text("Choose Food Picture")),
       ],
     );
+  }
+
+  Future<void> processData() async{
+    final ImagePicker imagePicker = ImagePicker();
+    final XFile? pickedFile = await imagePicker.pickImage(source: ImageSource.gallery, imageQuality: 80,maxWidth: 1024);
+    if (pickedFile == null) return;
+    Navigator.pushNamedAndRemoveUntil(context, '/main-screen', (_) => false, arguments: {'nutrientImage': pickedFile.path, 'initializeIndex': 0});
   }
 }

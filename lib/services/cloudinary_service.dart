@@ -1,33 +1,30 @@
-import 'package:cloudinary_url_gen/cloudinary.dart';
-import 'package:cloudinary_url_gen/config/cloud_config.dart';
-import 'package:cloudinary_url_gen/transformation/transformation.dart';
-import 'package:cloudinary_api/uploader/uploader.dart';
-import 'package:cloudinary_api/src/request/model/uploader_params.dart';
-import 'package:cloudinary_url_gen/transformation/effect/effect.dart';
-import 'package:cloudinary_url_gen/transformation/resize/resize.dart';
-import 'dart:async';
 import 'dart:io';
+import 'package:http/http.dart' as http;
 
 class CloudinaryService {
-  final String apiKey = "581977842454375";
-  final String apiSercret = '0ujNmkLjrnRjvEWO7dsZgnb2STE';
-  late final cloudinary ;
+  final String cloudName = "keephealthy";
+  final String uploadPreset = "user_upload";
 
+  Future<void> upload(String imagePath, String userID) async {
+    final url = Uri.parse(
+      "https://api.cloudinary.com/v1_1/$cloudName/image/upload",
+    );
 
-  CloudinaryService();
+    final request = http.MultipartRequest("POST", url);
 
-  void initCloudinaryService(){
-    cloudinary = Cloudinary.fromStringUrl("cloudinary:$apiKey:$apiSercret@keephealthy");
-    cloudinary.config.urlConfig.secure = true;
-  }
+    request.fields['upload_preset'] = uploadPreset;
+    request.fields['public_id'] = userID;
 
-  Future<void> upload(File imageFile, String userID) async{
-    try{
-      final respond = await cloudinary.uploader().upload(imageFile, params: UploadParams(resourceType: 'image', folder: 'profile_picture', publicId: userID, overwrite: true, uniqueFilename: false,
-      useFilename: true, tags: ['profile', 'user']));
-      print(respond.secureUrl); 
-    } catch (e){
-      throw e.toString();
+    request.files.add(
+      await http.MultipartFile.fromPath('file', imagePath),
+    );
+
+    final response = await request.send();
+
+    if (response.statusCode == 200) {
+      print("Upload success");
+    } else {
+      print("Upload failed: ${response.statusCode}");
     }
   }
 }

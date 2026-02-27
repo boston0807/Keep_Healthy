@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'dart:async';
-import '../models/user.dart';
+import '../models/user.dart' as app_user;
 import 'package:image_picker/image_picker.dart';
+import '../services/cloudinary_service.dart' ;
+import 'package:firebase_auth/firebase_auth.dart' as auth;
 
 class SettingPage extends StatefulWidget {
-  final User user ;
+  final app_user.User user ;
   const SettingPage({super.key, required this.user});
 
   @override
@@ -34,7 +36,8 @@ class _SettingPageState extends State<SettingPage> {
           final XFile? pickedFile = await imagePicker.pickImage(source: ImageSource.gallery, imageQuality: 80, maxWidth: 1024);
           if (pickedFile == null) return;
           setState(() {
-            imagePath = pickedFile.path;
+            var cloudinary = CloudinaryService();
+            cloudinary.upload(pickedFile.path, auth.FirebaseAuth.instance.currentUser!.uid);
           });
         }, child: Text("Change Profile Picture"))
       ],

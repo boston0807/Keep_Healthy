@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../pages/menu_page.dart';
+import '../pages/dashboard_page.dart';
 import '../pages/camera_page.dart';
 import '../pages/test_picture_page.dart';
 
@@ -22,13 +23,13 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     indexBottomNav = widget.initializeIndex;
     nutrientImagePath = widget.nutrientImage ;
-    widgetOption = [MenuPage(), Text('Dashboard'), SizedBox(), Text('Setting'), Text('Info')];
+    widgetOption = [MenuPage(), DashboardPage(), SizedBox(), Text('Setting'), Text('Info')];
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Keep Healthy')),
+      // appBar: AppBar(title: const Text('Keep Healthy')),
       body: Center(
         child: nutrientImagePath.isEmpty ? widgetOption[indexBottomNav] : TestPicturePage(imagePath: nutrientImagePath,)
       ),

@@ -5,6 +5,7 @@ import 'pages/login_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'pages/menu_page.dart';
+import 'pages/dashboard_page.dart';
 import 'screens/main_screen.dart';
 
 void main() async{
@@ -27,6 +28,7 @@ class MyApp extends StatelessWidget {
       initialRoute: FirebaseAuth.instance.currentUser == null ? '/login-page' : '/main-screen',
       routes: {
         '/menu-page':(context) => MenuPage(),
+        '/dashboard-page':(context) => DashboardPage(),
         '/login-page':(context) => LoginPage(),
         '/register-page':(context) => RegisterPage(),
         '/main-screen':(context) {

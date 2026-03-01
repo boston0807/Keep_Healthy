@@ -44,7 +44,7 @@ class _SettingPageState extends State<SettingPage> {
           else{
             final String uID = auth.FirebaseAuth.instance.currentUser!.uid;
             final String? uploadUrl = await cloudinary.upload(pickedFile.path, uID);
-            setState(() { 
+            setState(() {
               widget.user.imageUrl = uploadUrl;
             });
             dataBase.updateProfileImageUrl(widget.user.imageUrl!, uID);

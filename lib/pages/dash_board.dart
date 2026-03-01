@@ -43,24 +43,91 @@ class _DashBoardState extends State<DashBoard> {
     }
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
+        SizedBox(height: 10,),
         Image.file(File(widget.imagePath), height: 300),
-
         Expanded(
-          child: GridView.count(
-            crossAxisCount: 2,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text("Calories: ${foodNutriet!.calories}"),
-              Text("Protein: ${foodNutriet!.protein}"),
-              Text("Fat: ${foodNutriet!.fat}"),
-              Text("Carb: ${foodNutriet!.carb}"),
-              Text("Sugar: ${foodNutriet!.sugar}"),
-              Text("Sodium: ${foodNutriet!.sodium}"),
-              Text("Healthy Score: ${foodNutriet!.calculatePoint(widget.userWeight)}")
+              Padding(
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  children: [
+                    SizedBox(height: 20,),
+                    Row(
+                      children: [
+                        Expanded(child: buildCard("Protein", foodNutriet!.protein.toStringAsFixed(1))),
+                        Expanded(child: buildCard("Fat", foodNutriet!.fat.toStringAsFixed(1))),
+                      ],
+                    ),
+                    SizedBox(height: 10,),
+                    Row(
+                      children: [
+                        Expanded(child: buildCard("Carb", foodNutriet!.carb.toStringAsFixed(1))),
+                        Expanded(child: buildCard("Sugar", foodNutriet!.sugar.toStringAsFixed(1))),
+                      ],
+                    ),
+                    SizedBox(height: 10,),
+                    Row(
+                      children: [
+                        Expanded(child: buildCard("Sodium", foodNutriet!.sodium.toStringAsFixed(0))),
+                        Expanded(child: buildCard("Score", foodNutriet!.calculatePoint(widget.userWeight).toStringAsFixed(1))),
+                      ],
+                    ),
+                  ],
+                ),
+              )
             ],
           ),
         )
-      ],
+      ]
     );
   }
+
+  Widget buildCard(String title, String value) {
+  return Container(
+    margin: const EdgeInsets.all(10),
+    padding: const EdgeInsets.all(12),
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(20),
+      gradient: LinearGradient(
+        colors: [
+        const Color.fromARGB(255, 41, 155, 249),
+        const Color.fromARGB(255, 114, 192, 255)
+      ],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter
+      ),
+      border: Border.all(
+        color: const Color.fromARGB(255, 1, 140, 253),
+        width: 0.5,
+      ),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black26,
+          blurRadius: 5,
+          offset: Offset(0, 3),
+        )
+      ],
+    ),
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(title, style: TextStyle(color: Colors.white70, fontWeight: FontWeight.bold, fontSize: 18)),
+        SizedBox(height: 5),
+        Text(
+          value,
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+      ],
+    ),
+  );
+}
 }

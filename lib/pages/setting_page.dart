@@ -5,6 +5,7 @@ import '../models/user.dart' as app_user;
 import 'package:image_picker/image_picker.dart';
 import '../services/cloudinary_service.dart' ;
 import 'package:firebase_auth/firebase_auth.dart' as auth;
+import 'package:keep_healthy/services/database_service.dart';
 
 class SettingPage extends StatefulWidget {
   final app_user.User user ;
@@ -15,11 +16,13 @@ class SettingPage extends StatefulWidget {
 }
 
 class _SettingPageState extends State<SettingPage> {
-  String? imagePath;
+  late CloudinaryService cloudinary;
+  DatabaseService dataBase = DatabaseService();
 
   @override 
   void initState(){
     super.initState();
+    cloudinary = CloudinaryService();
   }
 
   @override
@@ -27,18 +30,25 @@ class _SettingPageState extends State<SettingPage> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        imagePath == null
-        ? Image.asset("assets/images/default_user.jpg", width: 200)
-        : Image.file(File(imagePath!), width: 200),
+        widget.user.imageUrl == null ?
+        Image.asset("assets/iamge/default_user.jpg") :
+        Image.network(widget.user.imageUrl!,
+        errorBuilder: (context, error, stackTrace) => Image.asset("assets/images/default_user.jpg"),),
         SizedBox(height: 30,),
         ElevatedButton(onPressed: () async{
           final ImagePicker imagePicker = ImagePicker();
           final XFile? pickedFile = await imagePicker.pickImage(source: ImageSource.gallery, imageQuality: 80, maxWidth: 1024);
-          if (pickedFile == null) return;
-          setState(() {
-            var cloudinary = CloudinaryService();
-            cloudinary.upload(pickedFile.path, auth.FirebaseAuth.instance.currentUser!.uid);
-          });
+          if (pickedFile == null){
+            return;
+          }
+          else{
+            final String uID = auth.FirebaseAuth.instance.currentUser!.uid;
+            final String? uploadUrl = await cloudinary.upload(pickedFile.path, uID);
+            setState(() { 
+              widget.user.imageUrl = uploadUrl;
+            });
+            dataBase.updateProfileImageUrl(widget.user.imageUrl!, uID);
+          }
         }, child: Text("Change Profile Picture"))
       ],
     );

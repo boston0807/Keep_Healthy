@@ -18,6 +18,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final firstNameController = TextEditingController();
   final surNameController = TextEditingController();
   final passwordController = TextEditingController();
+  final weightController = TextEditingController();
   final passwordConfirmController = TextEditingController();
 
   @override
@@ -28,6 +29,7 @@ class _RegisterPageState extends State<RegisterPage> {
     surNameController.dispose();
     passwordController.dispose();
     passwordConfirmController.dispose();
+    weightController.dispose();
     super.dispose();
   }
 
@@ -146,6 +148,20 @@ class _RegisterPageState extends State<RegisterPage> {
             const SizedBox(height: 20),
 
             Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15),
+              child: TextField(
+                controller: weightController,
+                textAlign: TextAlign.center,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: "Pls enter your weight",
+                ),
+              ),
+            ),
+
+            SizedBox(height: 15),
+
+            Padding(
               padding: const EdgeInsets.symmetric(horizontal: 40),
               child: SizedBox(
                 width: double.infinity,
@@ -158,6 +174,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     final firstName = firstNameController.text;
                     final surName = surNameController.text;
                     final password = passwordController.text;
+                    final weight =  double.parse(weightController.text);
                     final passwordConfirm = passwordConfirmController.text;
 
                     try{
@@ -169,6 +186,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       surName,
                       password,
                       passwordConfirm,
+                      weight
                     );
                     
                       Navigator.pushNamedAndRemoveUntil(context, '/main-screen', (_) => false);

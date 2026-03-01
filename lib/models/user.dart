@@ -7,9 +7,11 @@ class User {
   String name;
   String surName;
   String email;
-  dynamic loginTime ;
+  double weight;
+  dynamic loginTime;
+  String? imageUrl;
 
-  User({required this.username, required this.name, required this.surName, required this.email}){
+  User({required this.username, required this.name, required this.surName, required this.email, this.imageUrl, required this.weight}){
     loginTime = DateTime.now();
   }
 
@@ -17,6 +19,7 @@ class User {
     DatabaseService databaseService = DatabaseService();
     DocumentSnapshot doc = await databaseService.getUserFuture(uID);
     final data = doc.data() as Map<String, dynamic> ;
-    return User(username: data['user_name'], name: data['first_name'], surName: data['sur_name'], email: data['email']);
+    return User(username: data['user_name'], name: data['first_name'], surName: data['sur_name'], email: data['email'], imageUrl: data['image_url'], weight: data['weight']);
   }
+
 }

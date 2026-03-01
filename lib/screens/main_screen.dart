@@ -57,7 +57,7 @@ class _MainScreenState extends State<MainScreen> {
         )
       :
       Center(
-        child: nutrientImagePath.isEmpty ? widgetOption[indexBottomNav] : DashBoard(imagePath: nutrientImagePath,)
+        child: nutrientImagePath.isEmpty ? widgetOption[indexBottomNav] : DashBoard(imagePath: nutrientImagePath,userWeight: userAcc!.weight,)
       ),
       bottomNavigationBar: BottomNavigationBar(items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),

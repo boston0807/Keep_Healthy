@@ -10,10 +10,13 @@ class DatabaseService {
       'sur_name': sureName,
       'email': contact,
     });
-    
   }
 
-  Future<DocumentSnapshot> getUserFuture(String uID) async{
-    return await user.doc(uID).get();
+  Future<DocumentSnapshot> getUserFuture(String uID) {
+    return user.doc(uID).get();
+  }
+
+  void updateProfileImageUrl(String imageUrl, String uID){
+    user.doc(uID).update({'image_url': imageUrl});
   }
 }

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:keep_healthy/pages/setting_page.dart';
 import '../pages/menu_page.dart';
+import '../pages/dashboard_page.dart';
+import '../pages/setting_page.dart';
+import '../pages/about_page.dart';
 import '../pages/camera_page.dart';
-import '../pages/dash_board.dart';
+import '../pages/dashboard_page.dart';
 import '../models/user.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 class MainScreen extends StatefulWidget {
@@ -56,7 +59,7 @@ class _MainScreenState extends State<MainScreen> {
         )
       :
       Center(
-        child: nutrientImagePath.isEmpty ? widgetOption[indexBottomNav] : DashBoard(imagePath: nutrientImagePath,userWeight: userAcc!.weight,)
+        child: nutrientImagePath.isEmpty ? widgetOption[indexBottomNav] : DashBoard(imagePath: nutrientImagePath,userWeight: userAcc!.weight, user: userAcc!, uID: auth.FirebaseAuth.instance.currentUser!.uid,)
       ),
       bottomNavigationBar: BottomNavigationBar(items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),

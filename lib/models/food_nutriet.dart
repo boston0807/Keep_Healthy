@@ -5,8 +5,9 @@ class FoodNutriet {
   final double sodium;
   final double carb;
   final double sugar;
+  late double point ;
   
-  const FoodNutriet({required this.calories,required this.protein,required this.fat,required this.sodium,required this.carb,required this.sugar});
+  FoodNutriet({required this.calories,required this.protein,required this.fat,required this.sodium,required this.carb,required this.sugar});
 
   double calculatePoint(double weight) {
     if (weight <= 0) return 0;
@@ -29,9 +30,9 @@ class FoodNutriet {
 
     double bad = calorieRatio * 0.7 + fatRatio * 0.5 + carbRatio * 0.3 + sugarRatio * 0.8 + sodiumRatio * 0.7;
 
-    double score = good / (good + bad);
-    if (score.isNaN) score = 0;
-
-    return score * 100;
+    point = (good / (good + bad) * 100);
+    if (point.isNaN) point = 0;
+    
+    return point;
   }
 }

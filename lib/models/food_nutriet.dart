@@ -24,15 +24,10 @@ class FoodNutriet {
     double carbRatio = (carb / maxCarb).clamp(0, 1);
     double sugarRatio = (sugar / maxSugar).clamp(0, 1); 
     double sodiumRatio = (sodium / maxSodium).clamp(0, 1);
+    
+    double good = proteinRatio * 2 + (1 - fatRatio) * 0.5 + (1 - sugarRatio) * 1.0;
 
-    double good = proteinRatio * 2;
-
-    double bad =
-        calorieRatio * 1 +
-        fatRatio * 0.8 +
-        carbRatio * 0.5 +
-        sugarRatio * 1.0 +
-        sodiumRatio * 1.0;
+    double bad = calorieRatio * 0.7 + fatRatio * 0.5 + carbRatio * 0.3 + sugarRatio * 0.8 + sodiumRatio * 0.7;
 
     double score = good / (good + bad);
     if (score.isNaN) score = 0;

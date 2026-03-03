@@ -67,16 +67,17 @@ class _DashBoardState extends State<DashBoard> {
                     Row(
                       children: [
                         Expanded(child: buildCard("Carb", foodNutriet!.carb.toStringAsFixed(1))),
-                        Expanded(child: buildCard("Sugar", foodNutriet!.sugar.toStringAsFixed(1))),
+                        Expanded(child: buildCard("Calories", foodNutriet!.calories.toStringAsFixed(1))),
                       ],
                     ),
                     SizedBox(height: 10,),
                     Row(
                       children: [
                         Expanded(child: buildCard("Sodium", foodNutriet!.sodium.toStringAsFixed(0))),
-                        Expanded(child: buildCard("Score", foodNutriet!.calculatePoint(widget.userWeight).toStringAsFixed(1))),
+                        Expanded(child: buildCard("Sugar", foodNutriet!.sugar.toStringAsFixed(1))),
                       ],
                     ),
+                    buildCard("Keep Healthy Score", foodNutriet!.calculatePoint(widget.userWeight).toStringAsFixed(1)),
                   ],
                 ),
               )

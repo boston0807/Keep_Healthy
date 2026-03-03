@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import '../services/cloudinary_service.dart' ;
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:keep_healthy/services/database_service.dart';
+import 'dart:async';
 
 class SettingPage extends StatefulWidget {
   final app_user.User user ;
@@ -49,7 +50,11 @@ class _SettingPageState extends State<SettingPage> {
             });
             dataBase.updateProfileImageUrl(widget.user.imageUrl!, uID);
           }
-        }, child: Text("Change Profile Picture"))
+        }, child: Text("Change Profile Picture")),
+        ElevatedButton(onPressed: () async{
+          await auth.FirebaseAuth.instance.signOut();
+          Navigator.pushNamedAndRemoveUntil(context, "/login-page", (_) => false);
+        }, child: Text("Logout"))
       ],
     );
   }

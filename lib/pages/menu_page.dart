@@ -32,7 +32,7 @@ class _MenuPageState extends State<MenuPage> {
             radius: 18,
             backgroundColor: const Color(0xFF10297B),
             child: Text(
-              widget.user.name[0],
+              widget.user.name,
               style: const TextStyle(color: Colors.white),
             ),
           ),
@@ -175,7 +175,7 @@ class _MenuPageState extends State<MenuPage> {
               /// SET YOUR GOAL BUTTON
               ElevatedButton(
                 onPressed: () {
-
+                  processData();
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.orange.shade200,
@@ -190,7 +190,7 @@ class _MenuPageState extends State<MenuPage> {
                   elevation: 5,
                 ),
                 child: const Text(
-                  "Set Your Goal",
+                  "Choose Picture",
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -255,7 +255,7 @@ class _MenuPageState extends State<MenuPage> {
   Future<void> processData() async{
     final ImagePicker imagePicker = ImagePicker();
     final XFile? pickedFile = await imagePicker.pickImage(source: ImageSource.gallery, imageQuality: 80,maxWidth: 1024);
-    if (pickedFile == null) return;
+    if (pickedFile == null) return;    
     Navigator.pushNamedAndRemoveUntil(context, '/main-screen', (_) => false, arguments: {'nutrientImage': pickedFile.path, 'initializeIndex': 0});
   }
 }

@@ -6,6 +6,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'pages/menu_page.dart';
 import 'pages/dashboard_page.dart';
+import 'pages/setting_page.dart';
+import 'pages/about_page.dart';
 import 'screens/main_screen.dart';
 
 void main() async{
@@ -29,6 +31,8 @@ class MyApp extends StatelessWidget {
       routes: {
         '/menu-page':(context) => MenuPage(),
         '/dashboard-page':(context) => DashboardPage(),
+        '/setting-page':(context) => SettingPage(),
+        '/about-page':(context) => AboutPage(),
         '/login-page':(context) => LoginPage(),
         '/register-page':(context) => RegisterPage(),
         '/main-screen':(context) {

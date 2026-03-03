@@ -46,18 +46,18 @@ class _DashboardPageState extends State<DashboardPage> {
         title: const Text("Nutrient Dashboard"),
         actions: [
 
-    Padding(
-      padding: const EdgeInsets.only(right: 12),
-      child: CircleAvatar(
-            radius: 18,
-            backgroundColor: const Color(0xFF10297B),
-            child: Text(
-              userAcc!.name[0],
-              style: const TextStyle(color: Colors.white),
+      Padding(
+        padding: const EdgeInsets.only(right: 12),
+        child: CircleAvatar(
+              radius: 18,
+              backgroundColor: const Color(0xFF10297B),
+              child: Text(
+                userAcc!.name[0],
+                style: const TextStyle(color: Colors.white),
+              ),
             ),
           ),
-        ),
-      ],
+        ],
       ),
     );
   }

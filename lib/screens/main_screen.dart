@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../pages/menu_page.dart';
 import '../pages/dashboard_page.dart';
+import '../pages/setting_page.dart';
+import '../pages/about_page.dart';
 import '../pages/camera_page.dart';
 import '../pages/test_picture_page.dart';
 
@@ -23,7 +25,7 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     indexBottomNav = widget.initializeIndex;
     nutrientImagePath = widget.nutrientImage ;
-    widgetOption = [MenuPage(), DashboardPage(), SizedBox(), Text('Setting'), Text('Info')];
+    widgetOption = [MenuPage(), DashboardPage(), SizedBox(), SettingPage(), AboutPage()];
   }
 
   @override

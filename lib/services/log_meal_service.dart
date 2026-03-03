@@ -47,7 +47,7 @@ class LogMealService {
       final respond = await http.post(url,headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $apiKey'}, body: jsonEncode({'imageId' : imageID}));
       if (respond.statusCode == 200){
         final data = jsonDecode(respond.body);
-        return FoodNutriet(data['nutritional_info']['calories'], data['nutritional_info']['totalNutrients']['PROCNT']["quantity"]);
+        return FoodNutriet(calories: data['nutritional_info']['calories'],protein:  data['nutritional_info']['totalNutrients']['PROCNT']["quantity"],fat: data['nutritional_info']['totalNutrients']['FAT']["quantity"],carb: data['nutritional_info']['totalNutrients']["CHOCDF"]["quantity"],sugar: data['nutritional_info']['totalNutrients']["SUGAR"]["quantity"],sodium: data['nutritional_info']['totalNutrients']["NA"]["quantity"]);
       }else{ 
         throw respond.statusCode;
       }

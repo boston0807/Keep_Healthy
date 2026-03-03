@@ -1,6 +1,38 @@
 class FoodNutriet {
   final double calories;
   final double protein;
-  const FoodNutriet(this.calories, this.protein);
+  final double fat;
+  final double sodium;
+  final double carb;
+  final double sugar;
+  late double point ;
+  
+  FoodNutriet({required this.calories,required this.protein,required this.fat,required this.sodium,required this.carb,required this.sugar});
 
+  double calculatePoint(double weight) {
+    if (weight <= 0) return 0;
+
+    double maxProtein = weight * 1.0;
+    double maxCalories = weight * 27;
+    double maxFat = (maxCalories * 0.3) / 9;
+    double maxCarb = (maxCalories * 0.5) / 4;
+    double maxSugar = 25; 
+    double maxSodium = 2000;
+
+    double proteinRatio = (protein / maxProtein).clamp(0, 1);
+    double calorieRatio = (calories / maxCalories).clamp(0, 1);
+    double fatRatio = (fat / maxFat).clamp(0, 1);
+    double carbRatio = (carb / maxCarb).clamp(0, 1);
+    double sugarRatio = (sugar / maxSugar).clamp(0, 1); 
+    double sodiumRatio = (sodium / maxSodium).clamp(0, 1);
+    
+    double good = proteinRatio * 2 + (1 - fatRatio) * 0.5 + (1 - sugarRatio) * 1.0;
+
+    double bad = calorieRatio * 0.7 + fatRatio * 0.5 + carbRatio * 0.3 + sugarRatio * 0.8 + sodiumRatio * 0.7;
+
+    point = (good / (good + bad) * 100);
+    if (point.isNaN) point = 0;
+    
+    return point;
+  }
 }

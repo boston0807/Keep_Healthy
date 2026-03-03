@@ -4,12 +4,15 @@ import 'package:keep_healthy/models/user.dart';
 import 'dart:io';
 import '../services/log_meal_service.dart';
 import 'dart:async';
+import '../services/database_service.dart';
 
 class DashBoard extends StatefulWidget {
+  final User user;
+  final String uID;
   final String imagePath;
   final double userWeight;
 
-  const DashBoard({super.key, required this.imagePath, required this.userWeight});
+  const DashBoard({super.key, required this.imagePath, required this.userWeight, required this.user, required this.uID});
 
   @override
   State<DashBoard> createState() => _DashBoardState();
@@ -27,11 +30,19 @@ class _DashBoardState extends State<DashBoard> {
 
   Future<void> processImage() async {
     FoodNutriet result = await LogMealService.analyzeFood(widget.imagePath);
-
     setState(() {
       foodNutriet = result;
       isLoading = false;
     });
+    result.calculatePoint(widget.userWeight);
+    try {
+      DatabaseService databaseService = DatabaseService();
+      await databaseService.uploadUserUsageCount(++widget.user.usageCount, widget.uID);
+      await databaseService.saveFoodNutrient(result, widget.uID, widget.user.usageCount);
+      print("Upload user usageCount and save food Nutrient Complete");
+    } catch (e){
+      print("Upload user usageCount and save food Nutrient error $e");
+    }
   }
 
 
@@ -46,7 +57,7 @@ class _DashBoardState extends State<DashBoard> {
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        SizedBox(height: 10,),
+        SizedBox(height: 80,),
         Image.file(File(widget.imagePath), height: 300),
         Expanded(
           child: Column(
@@ -77,7 +88,7 @@ class _DashBoardState extends State<DashBoard> {
                         Expanded(child: buildCard("Sugar", foodNutriet!.sugar.toStringAsFixed(1))),
                       ],
                     ),
-                    buildCard("Keep Healthy Score", foodNutriet!.calculatePoint(widget.userWeight).toStringAsFixed(1)),
+                    buildCard("Keep Healthy Score", foodNutriet!.point.toStringAsFixed(1)),
                   ],
                 ),
               )

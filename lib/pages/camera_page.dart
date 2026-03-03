@@ -68,7 +68,6 @@ class CameraPageState extends State<CameraPage> {
                   color: Colors.black,
                 ),
                 child: Stack(
-                  
                   alignment: Alignment.center,
                   children: [
                     IconButton(

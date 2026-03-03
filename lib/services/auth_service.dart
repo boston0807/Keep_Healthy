@@ -13,13 +13,13 @@ class AuthService {
       );
   }
 
-  Future<UserCredential> register(String contact, String username, String firstName, String surName, String password, String passwordConfirm) async {
+  Future<UserCredential> register(String contact, String username, String firstName, String surName, String password, String passwordConfirm, double weight) async {
     if (password != passwordConfirm){
       throw Exception("Password confirm is incorrect");
     }
     else {
       UserCredential userCredential = await _auth.createUserWithEmailAndPassword(email: contact, password: password);
-      await saveUserInfo(contact, username, firstName, surName, userCredential.user!.uid);
+      await saveUserInfo(contact, username, firstName, surName, userCredential.user!.uid, weight);
       return userCredential;
     }
   }
@@ -28,12 +28,13 @@ class AuthService {
     await _auth.signOut();
   }
 
-  Future<void> saveUserInfo(String contact, String username, String firstName, String surName, String uID){
+  Future<void> saveUserInfo(String contact, String username, String firstName, String surName, String uID, double weight){
     return db.user.doc(uID).set({
       'user_name': username,
       'first_name': firstName,
       'sur_name': surName,
-      'email': contact
+      'email': contact,
+      'weight': weight,
     });
   }
 }

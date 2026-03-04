@@ -1,13 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:keep_healthy/models/user.dart';
-import '../models/food_nutriet.dart';
+import '../models/food_nutrient.dart';
 
 class DatabaseService {
   final CollectionReference user = FirebaseFirestore.instance.collection('user');
   final CollectionReference food = FirebaseFirestore.instance.collection('food_nutrient');
 
-  Future<DocumentSnapshot> getUserFuture(String uID) {
-    return user.doc(uID).get();
+  Future<DocumentSnapshot> getUserFuture(String uID) async{
+    return await user.doc(uID).get();
+  }
+
+  Future<DocumentSnapshot> getFoodNutrientFuture(String docID) async{
+    return await food.doc(docID).get();
   }
 
   Future<void> updateProfileImageUrl(String imageUrl, String uID){
@@ -18,7 +22,7 @@ class DatabaseService {
     return user.doc(uID).update({'usage_count': usageCount});
   }
 
-  Future<void> saveFoodNutrient(FoodNutriet foodNutriet, String uID, int usageCount, ){
+  Future<void> saveFoodNutrient(FoodNutrient foodNutriet, String uID, int usageCount, ){
     final String docID = uID + usageCount.toString();
     return food.doc(docID).set({
       'calories': foodNutriet.calories,
@@ -28,7 +32,8 @@ class DatabaseService {
       'protein': foodNutriet.protein,
       'sodium': foodNutriet.sodium,
       'sugar': foodNutriet.sugar,
-      'Date': DateTime.now()
+      'Date': DateTime.now(),
+      'image_url': foodNutriet.imageUrl,
     });
   }
 }

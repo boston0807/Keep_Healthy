@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:keep_healthy/pages/dashboard_test.dart';
 import 'package:keep_healthy/pages/setting_page.dart';
 import '../pages/menu_page.dart';
 import '../pages/dashboard_page.dart';
@@ -46,7 +47,7 @@ class _MainScreenState extends State<MainScreen> {
     User user = await User.createUser(uID); 
     setState(() {
     userAcc = user;
-    widgetOption = [MenuPage(user: userAcc!,), Text('Dashboard'), SizedBox(), SettingPage(user: userAcc!,), Text('Info')];
+    widgetOption = [MenuPage(user: userAcc!,), Text('Dashboard'), SizedBox(), SettingPage(user: userAcc!,), DashboardTest(user: user)];
     });  
   }
 

@@ -1,13 +1,17 @@
-class FoodNutriet {
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../services/database_service.dart';
+
+class FoodNutrient {
   final double calories;
   final double protein;
   final double fat;
   final double sodium;
   final double carb;
   final double sugar;
-  late double point ;
+  double point ;
+  String imageUrl;
   
-  FoodNutriet({required this.calories,required this.protein,required this.fat,required this.sodium,required this.carb,required this.sugar});
+  FoodNutrient({required this.calories,required this.protein,required this.fat,required this.sodium,required this.carb,required this.sugar, this.point = 0, this.imageUrl = ""});
 
   double calculatePoint(double weight) {
     if (weight <= 0) return 0;
@@ -34,5 +38,13 @@ class FoodNutriet {
     if (point.isNaN) point = 0;
     
     return point;
+  }
+
+  static Future<FoodNutrient> createFoodNutrient(String docID) async{
+    DatabaseService databaseService = DatabaseService();
+    DocumentSnapshot documentSnapshot = await databaseService.getFoodNutrientFuture(docID);
+    final data = documentSnapshot.data() as Map<String, dynamic>;
+    return FoodNutrient(calories: data['calories'], protein: data['protein'], fat: data['fat'], sodium: data['sodium'], carb: data['carb'], sugar: data['sugar'], point: data['point'], imageUrl: data['image_url']);
+
   }
 }

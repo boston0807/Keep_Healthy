@@ -1,5 +1,5 @@
 import 'dart:convert';
-import '../models/food_nutriet.dart';
+import '../models/food_nutrient.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:io';
@@ -37,17 +37,17 @@ class LogMealService {
     return base64Encode(imageByte);
   }
 
-    static Future<FoodNutriet> analyzeFood(String imagePath) async{
+    static Future<FoodNutrient> analyzeFood(String imagePath) async{
       String imageID = await getImageID(imagePath);
       return await getFoodNutrient(imageID);
     }
 
-    static Future<FoodNutriet> getFoodNutrient(String imageID) async{
+    static Future<FoodNutrient> getFoodNutrient(String imageID) async{
       final url = Uri.parse("$baseUrl/nutrition/recipe/nutritionalInfo");
       final respond = await http.post(url,headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $apiKey'}, body: jsonEncode({'imageId' : imageID}));
       if (respond.statusCode == 200){
         final data = jsonDecode(respond.body);
-        return FoodNutriet(calories: data['nutritional_info']['calories'],protein:  data['nutritional_info']['totalNutrients']['PROCNT']["quantity"],fat: data['nutritional_info']['totalNutrients']['FAT']["quantity"],carb: data['nutritional_info']['totalNutrients']["CHOCDF"]["quantity"],sugar: data['nutritional_info']['totalNutrients']["SUGAR"]["quantity"],sodium: data['nutritional_info']['totalNutrients']["NA"]["quantity"]);
+        return FoodNutrient(calories: data['nutritional_info']['calories'],protein:  data['nutritional_info']['totalNutrients']['PROCNT']["quantity"],fat: data['nutritional_info']['totalNutrients']['FAT']["quantity"],carb: data['nutritional_info']['totalNutrients']["CHOCDF"]["quantity"],sugar: data['nutritional_info']['totalNutrients']["SUGAR"]["quantity"],sodium: data['nutritional_info']['totalNutrients']["NA"]["quantity"]);
       }else{ 
         throw respond.statusCode;
       }

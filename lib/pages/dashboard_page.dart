@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:keep_healthy/models/food_nutriet.dart';
+import 'package:keep_healthy/models/food_nutrient.dart';
 import 'package:keep_healthy/models/user.dart';
 import 'dart:io';
 import '../services/log_meal_service.dart';
 import 'dart:async';
 import '../services/database_service.dart';
+import '../services/cloudinary_service.dart';
 
 class DashBoard extends StatefulWidget {
   final User user;
@@ -19,7 +20,7 @@ class DashBoard extends StatefulWidget {
 }
 
 class _DashBoardState extends State<DashBoard> {
-  FoodNutriet? foodNutriet;
+  FoodNutrient? foodNutriet;
   bool isLoading = true;
 
   @override
@@ -29,7 +30,7 @@ class _DashBoardState extends State<DashBoard> {
   }
 
   Future<void> processImage() async {
-    FoodNutriet result = await LogMealService.analyzeFood(widget.imagePath);
+    FoodNutrient result = await LogMealService.analyzeFood(widget.imagePath);
     setState(() {
       foodNutriet = result;
       isLoading = false;
@@ -37,7 +38,9 @@ class _DashBoardState extends State<DashBoard> {
     result.calculatePoint(widget.userWeight);
     try {
       DatabaseService databaseService = DatabaseService();
+      CloudinaryService cloudinaryService = CloudinaryService();
       await databaseService.uploadUserUsageCount(++widget.user.usageCount, widget.uID);
+      result.imageUrl = await cloudinaryService.uploadFoodNutrient(widget.imagePath, widget.uID+widget.user.usageCount.toString()); 
       await databaseService.saveFoodNutrient(result, widget.uID, widget.user.usageCount);
       print("Upload user usageCount and save food Nutrient Complete");
     } catch (e){

@@ -10,8 +10,9 @@ class FoodNutrient {
   final double sugar;
   double point ;
   String imageUrl;
+  DateTime? date ;
   
-  FoodNutrient({required this.calories,required this.protein,required this.fat,required this.sodium,required this.carb,required this.sugar, this.point = 0, this.imageUrl = ""});
+  FoodNutrient({required this.calories,required this.protein,required this.fat,required this.sodium,required this.carb,required this.sugar, this.point = 0, this.imageUrl = "", this.date});
 
   double calculatePoint(double weight) {
     if (weight <= 0) return 0;
@@ -44,7 +45,7 @@ class FoodNutrient {
     DatabaseService databaseService = DatabaseService();
     DocumentSnapshot documentSnapshot = await databaseService.getFoodNutrientFuture(docID);
     final data = documentSnapshot.data() as Map<String, dynamic>;
-    return FoodNutrient(calories: data['calories'], protein: data['protein'], fat: data['fat'], sodium: data['sodium'], carb: data['carb'], sugar: data['sugar'], point: data['point'], imageUrl: data['image_url']);
+    return FoodNutrient(calories: data['calories'], protein: data['protein'], fat: data['fat'], sodium: data['sodium'], carb: data['carb'], sugar: data['sugar'], point: data['point'], imageUrl: data['image_url'], date: (data['Date'] as Timestamp).toDate());
   }
 
   static Future<List<FoodNutrient>> createFoodNutrientList(String uID, int usage) async {
@@ -72,6 +73,7 @@ class FoodNutrient {
         sugar: data['sugar'],
         point: data['point'],
         imageUrl: data['image_url'],
+        date: (data['Date'] as Timestamp).toDate()
       );
       list.add(food);
       i--;

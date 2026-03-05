@@ -1,3 +1,5 @@
+import 'package:keep_healthy/pages/graph_page.dart';
+
 import '../models/food_nutrient.dart';
 import 'package:flutter/material.dart';
 import '../models/user.dart';
@@ -13,7 +15,7 @@ class DashboardTest extends StatefulWidget {
 
 class _DashboardTestState extends State<DashboardTest> {
   late final FoodNutrient? foodNutrient;
-  late final List<FoodNutrient?> foodList;
+  late final List<FoodNutrient> foodList;
   bool isLoading = true;
 
   @override
@@ -37,22 +39,32 @@ Widget build(BuildContext context) {
     return const Center(child: Text("No data"));
   }
 
-  return ListView.builder(
-    itemCount: foodList.length,
-    itemBuilder: (context, index) {
-      final food = foodList[index];
+  return Column(
+      children: [
+        SizedBox(height: 70,),
+        ElevatedButton(
+        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => GraphPage(foodListRef: foodList))),
+        child: Text("To graph Page")),
+        Expanded(
+            child: ListView.builder(
+          itemCount: foodList.length,
+          itemBuilder: (context, index) {
+            final food = foodList[index];
 
-      return Column(
-        children: [
-          Image.network(food!.imageUrl, width: 200),
-          const SizedBox(height: 10),
-          Text(food.point.toStringAsFixed(1)),
-          const SizedBox(height: 30),
-        ],
-      );
-    },
-  );
-}
+            return Column(
+              children: [
+                Image.network(food!.imageUrl, width: 200),
+                const SizedBox(height: 10),
+                Text(food.point.toStringAsFixed(1)),
+                const SizedBox(height: 30),
+                ],
+              );
+            },
+          ),
+        ),
+      ]
+    );
+  }
 
   Future<void> fetchOneFoodNutrient() async{
     try{
@@ -85,6 +97,6 @@ Widget build(BuildContext context) {
     });
   } catch (e) {
     print("fetch list error $e \n uID: ${auth.FirebaseAuth.instance.currentUser!.uid}");
+    }
   }
-}
 }

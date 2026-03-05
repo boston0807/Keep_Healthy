@@ -36,4 +36,24 @@ class DatabaseService {
       'image_url': foodNutriet.imageUrl,
     });
   }
+
+  Future<void> updateUserWeight(String uID, double weight){
+    return user.doc(uID).update({'weight': weight});
+  }
+
+  Future<void> updateUserUsername(String uID, double username){
+    return user.doc(uID).update({'username': username});
+  }
+
+  Future<void> updateUserFirstName(String uID, String firstName){
+    return user.doc(uID).update({"first_name": firstName});
+  }
+
+  Future<void> updateUserSurName(String uID, String surName){
+    return user.doc(uID).update({"sur_name": surName});
+  }
+
+  Future<void> updateUserEmail(String uID, String email){
+    return user.doc(uID).update({"email": email});
+  }
 }

@@ -12,13 +12,14 @@ class DashboardTest extends StatefulWidget {
 }
 
 class _DashboardTestState extends State<DashboardTest> {
-  late final FoodNutrient foodNutrient;
+  late final FoodNutrient? foodNutrient;
+  late final List<FoodNutrient?> foodList;
   bool isLoading = true;
 
   @override
   void initState(){
     super.initState();
-    fetchOneFoodNutrient();
+    fetchFoodList();
   }
 
   @override
@@ -26,24 +27,32 @@ class _DashboardTestState extends State<DashboardTest> {
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return isLoading ?
-    Center(
-      child: CircularProgressIndicator(),
-    ) 
-    :
-    Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.network(foodNutrient.imageUrl, width: 250,),
-          SizedBox(height: 80,),
-          Text(foodNutrient.point.toStringAsFixed(1)),
-        ],
-      ),
-    );
+@override
+Widget build(BuildContext context) {
+  if (isLoading) {
+    return const Center(child: CircularProgressIndicator());
   }
+
+  if (foodList.isEmpty) {
+    return const Center(child: Text("No data"));
+  }
+
+  return ListView.builder(
+    itemCount: foodList.length,
+    itemBuilder: (context, index) {
+      final food = foodList[index];
+
+      return Column(
+        children: [
+          Image.network(food!.imageUrl, width: 200),
+          const SizedBox(height: 10),
+          Text(food.point.toStringAsFixed(1)),
+          const SizedBox(height: 30),
+        ],
+      );
+    },
+  );
+}
 
   Future<void> fetchOneFoodNutrient() async{
     try{
@@ -59,4 +68,23 @@ class _DashboardTestState extends State<DashboardTest> {
       print("fetch one food error $e");
     }
   }
+
+  Future<void> fetchFoodList() async {
+  try {
+    final String uID = auth.FirebaseAuth.instance.currentUser!.uid;
+
+    foodList = await FoodNutrient.createFoodNutrientList(
+      uID,
+      widget.user.usageCount,
+    );
+
+    if (!mounted) return;
+
+    setState(() {
+      isLoading = false;
+    });
+  } catch (e) {
+    print("fetch list error $e \n uID: ${auth.FirebaseAuth.instance.currentUser!.uid}");
+  }
+}
 }

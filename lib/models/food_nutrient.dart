@@ -45,6 +45,38 @@ class FoodNutrient {
     DocumentSnapshot documentSnapshot = await databaseService.getFoodNutrientFuture(docID);
     final data = documentSnapshot.data() as Map<String, dynamic>;
     return FoodNutrient(calories: data['calories'], protein: data['protein'], fat: data['fat'], sodium: data['sodium'], carb: data['carb'], sugar: data['sugar'], point: data['point'], imageUrl: data['image_url']);
+  }
 
+  static Future<List<FoodNutrient>> createFoodNutrientList(String uID, int usage) async {
+    if (usage == 0){ 
+      print("Fetch List of FoodNutrinet failed");
+      throw Exception("This is your first time try use our Keep Healthy");
+    }
+    DatabaseService databaseService = DatabaseService();
+    List<FoodNutrient> list = [];
+    int i = usage;
+    print("Start fetch food List for uID: $uID \n usageCount: $usage");
+    while (i > 0) {
+      DocumentSnapshot documentSnapshot = await databaseService.getFoodNutrientFuture(uID + i.toString());
+      if (documentSnapshot.data() == null) {
+        i--;
+        continue;
+      } 
+      var data = documentSnapshot.data() as Map<String, dynamic>;
+      FoodNutrient food = FoodNutrient(
+        calories: data['calories'],
+        protein: data['protein'],
+        fat: data['fat'],
+        sodium: data['sodium'],
+        carb: data['carb'],
+        sugar: data['sugar'],
+        point: data['point'],
+        imageUrl: data['image_url'],
+      );
+      list.add(food);
+      i--;
+    }
+    print("Fetch food list $uID complete");
+    return list;
   }
 }

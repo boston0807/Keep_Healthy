@@ -6,7 +6,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'pages/menu_page.dart';
 import 'pages/dashboard_page.dart';
-import 'pages/setting_page.dart';
 import 'pages/about_page.dart';
 import 'screens/main_screen.dart';
 
@@ -30,7 +29,7 @@ class MyApp extends StatelessWidget {
       initialRoute: FirebaseAuth.instance.currentUser == null ? '/login-page' : '/main-screen',
       routes: {
         '/menu-page':(context) {
-          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;  
 
           return MenuPage(user: args?['user']);
         },

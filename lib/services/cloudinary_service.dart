@@ -32,10 +32,6 @@ class CloudinaryService {
     }
   }
 
-  String getProfileImageUrl(String userId) {
-    return "https://res.cloudinary.com/keephealthy/image/upload/profile_images/$userId";
-  }
-
     Future<String> uploadFoodNutrient(String imagePath, String docID) async {
     final url = Uri.parse(
       "https://api.cloudinary.com/v1_1/$cloudName/image/upload",

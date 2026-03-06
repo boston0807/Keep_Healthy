@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:keep_healthy/pages/user_profile_edit.dart';
 import 'dart:io';
 import 'dart:async';
 import '../models/user.dart' as app_user;
@@ -54,7 +55,14 @@ class _SettingPageState extends State<SettingPage> {
         ElevatedButton(onPressed: () async{
           await auth.FirebaseAuth.instance.signOut();
           Navigator.pushNamedAndRemoveUntil(context, "/login-page", (_) => false);
-        }, child: Text("Logout"))
+        }, child: Text("Logout")),
+        ElevatedButton(onPressed: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => UserProfileEdit(user: widget.user)));
+        }, child: Text("Edit Account")),
+        ElevatedButton(onPressed: () {
+          auth.FirebaseAuth.instance.signOut();
+          Navigator.pushNamedAndRemoveUntil(context, ("/login-page"), (_) => false);
+        }, child: Text("Logout")),
       ],
     );
   }

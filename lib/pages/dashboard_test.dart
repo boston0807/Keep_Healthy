@@ -43,7 +43,7 @@ Widget build(BuildContext context) {
       children: [
         SizedBox(height: 70,),
         ElevatedButton(
-        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => GraphPage(foodListRef: foodList))),
+        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => GraphPage(foodListRef: foodList, usageCount: widget.user.usageCount,))),
         child: Text("To graph Page")),
         Expanded(
             child: ListView.builder(

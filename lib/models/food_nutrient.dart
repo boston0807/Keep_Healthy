@@ -36,8 +36,8 @@ class FoodNutrient {
     double bad = calorieRatio * 0.7 + fatRatio * 0.5 + carbRatio * 0.3 + sugarRatio * 0.8 + sodiumRatio * 0.7;
 
     point = (good / (good + bad) * 100);
-    if (point.isNaN) point = 0;
-    
+    if (point.isNaN || point < 0) point = 0;
+    if (point > 100) point = 100;
     return point;
   }
 
@@ -80,5 +80,23 @@ class FoodNutrient {
     }
     print("Fetch food list $uID complete");
     return list;
+  }
+
+  static double maxPoint(List<FoodNutrient> foodList){
+    if (foodList.isEmpty) throw Exception("foodList is Empty");
+    double maxPoint = -99999999;
+    for (FoodNutrient food in foodList){
+      if (food.point > maxPoint) maxPoint = food.point;
+    }
+    return maxPoint;
+  }
+
+  static double minPoint(List<FoodNutrient> foodList){
+    if (foodList.isEmpty) throw Exception("foodList is Empty");
+    double minPoint = 99999999;
+    for (FoodNutrient food in foodList){
+      if (food.point < minPoint) minPoint = food.point;
+    }
+    return minPoint;
   }
 }

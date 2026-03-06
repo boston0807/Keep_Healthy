@@ -38,14 +38,11 @@ class _RegisterPageState extends State<RegisterPage> {
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-
+      appBar: AppBar(),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-
-            const SizedBox(height: 70),
-
             Image.asset(
               "assets/images/keep_healthy(nobg).png",
               width: 225,
@@ -79,7 +76,7 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
             ),
 
-            const SizedBox(height: 40),
+            const SizedBox(height: 20),
 
             Row(
               children: [
@@ -115,7 +112,7 @@ class _RegisterPageState extends State<RegisterPage> {
               ],
             ),
 
-            const SizedBox(height: 40),
+            const SizedBox(height: 20),
 
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -130,7 +127,7 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
             ),
 
-            const SizedBox(height: 40),
+            const SizedBox(height: 20),
 
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -201,6 +198,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.grey[200],
                     foregroundColor: Colors.black,
+                    padding: EdgeInsets.symmetric(vertical: 15)
                   ),
 
                   child: const Text(

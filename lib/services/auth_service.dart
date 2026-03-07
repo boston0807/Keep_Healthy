@@ -35,6 +35,8 @@ class AuthService {
       'sur_name': surName,
       'email': contact,
       'weight': weight,
+      'image_url': "",
+      'usage_count': 0,
     });
   }
 }

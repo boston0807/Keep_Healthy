@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import '../services/cloudinary_service.dart' ;
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:keep_healthy/services/database_service.dart';
+import 'dart:async';
 
 class SettingPage extends StatefulWidget {
   final app_user.User user ;

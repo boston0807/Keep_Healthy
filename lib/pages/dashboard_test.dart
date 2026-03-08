@@ -39,30 +39,105 @@ Widget build(BuildContext context) {
     return const Center(child: Text("No data"));
   }
 
-  return Column(
-      children: [
-        SizedBox(height: 70,),
-        ElevatedButton(
-        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => GraphPage(foodListRef: foodList, usageCount: widget.user.usageCount,))),
-        child: Text("To graph Page")),
-        Expanded(
-            child: ListView.builder(
-          itemCount: foodList.length,
-          itemBuilder: (context, index) {
-            final food = foodList[index];
+  // return Column(
+  //     children: [
+  //       SizedBox(height: 70,),
+  //       ElevatedButton(
+  //       onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => GraphPage(foodListRef: foodList, usageCount: widget.user.usageCount,))),
+  //       child: Text("To graph Page")),
+  //       Expanded(
+  //           child: ListView.builder(
+  //         itemCount: foodList.length,
+  //         itemBuilder: (context, index) {
+  //           final food = foodList[index];
 
-            return Column(
-              children: [
-                Image.network(food!.imageUrl, width: 200),
-                const SizedBox(height: 10),
-                Text(food.point.toStringAsFixed(1)),
-                const SizedBox(height: 30),
-                ],
-              );
-            },
+  //           return Column(
+  //             children: [
+  //               Image.network(food!.imageUrl, width: 200),
+  //               const SizedBox(height: 10),
+  //               Text(food.point.toStringAsFixed(1)),
+  //               const SizedBox(height: 30),
+  //               ],
+  //             );
+  //           },
+  //         ),
+  //       ),
+  //     ]
+  //   );
+
+  return Scaffold(
+    appBar: AppBar(
+      title: const Text("Dashboard"),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 10),
+          child: TextButton(
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => GraphPage(foodListRef: foodList, usageCount: widget.user.usageCount,))),
+            style: TextButton.styleFrom(
+              backgroundColor: Colors.grey[300],
+              elevation: 3,
+              shadowColor: Colors.black,
+              side: const BorderSide(color: Colors.black),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
+            child: const Text("View Graph", style: TextStyle(color: Colors.black),),
           ),
-        ),
-      ]
+        )
+      ],
+    ),
+    body: GridView.builder(
+      padding: const EdgeInsets.all(16),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
+        childAspectRatio: 0.8,
+      ),
+      itemCount: foodList.length,
+      itemBuilder: (context, index) {
+        final food = foodList[index];
+
+        return GestureDetector(
+          onTap: () {
+            // Handle tap event for each food item
+            Navigator.pushNamed(context, '/food-detail-page', arguments: {
+              'foodName': 'Food ${index + 1}', // You can replace this with actual food name if available
+              'imageUrl': food.imageUrl,
+              'point': food.point,
+            });
+          },
+          child: Card(
+            elevation: 4,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child:Image.network(food.imageUrl, width: 150, height: 150, fit: BoxFit.cover,),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  Text(
+                    food.point.toStringAsFixed(1),
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    ),
     );
   }
 

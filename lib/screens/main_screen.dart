@@ -47,7 +47,7 @@ class _MainScreenState extends State<MainScreen> {
     User user = await User.createUser(uID); 
     setState(() {
     userAcc = user;
-    widgetOption = [MenuPage(user: userAcc!,), Text('Dashboard'), SizedBox(), SettingPage(user: userAcc!,), DashboardTest(user: user)];
+    widgetOption = [MenuPage(user: userAcc!,), DashboardTest(user: userAcc!), SizedBox(), SettingPage(user: userAcc!,), DashboardTest(user: user)];
     });  
   }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:keep_healthy/pages/dashboard_test.dart';
+import 'package:keep_healthy/pages/profile_page.dart';
 import 'package:keep_healthy/pages/setting_page.dart';
 import '../pages/menu_page.dart';
 import '../pages/dashboard_page.dart';
@@ -47,7 +48,7 @@ class _MainScreenState extends State<MainScreen> {
     User user = await User.createUser(uID); 
     setState(() {
     userAcc = user;
-    widgetOption = [MenuPage(user: userAcc!,), DashboardTest(user: userAcc!), SizedBox(), SettingPage(user: userAcc!,), DashboardTest(user: user)];
+    widgetOption = [MenuPage(user: userAcc!,), DashboardTest(user: userAcc!), SizedBox(), SettingPage(user: userAcc!,), ProfilePage(user: user)];
     });  
   }
 
@@ -67,7 +68,7 @@ class _MainScreenState extends State<MainScreen> {
         BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
         BottomNavigationBarItem(icon: Icon(Icons.camera), label: 'Camera'),
         BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Setting'),
-        BottomNavigationBarItem(icon: Icon(Icons.info), label: 'Info'),
+        BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
       ],
       type: BottomNavigationBarType.fixed,
       currentIndex: indexBottomNav,

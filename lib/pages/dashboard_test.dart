@@ -39,32 +39,6 @@ Widget build(BuildContext context) {
     return const Center(child: Text("No data"));
   }
 
-  // return Column(
-  //     children: [
-  //       SizedBox(height: 70,),
-  //       ElevatedButton(
-  //       onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => GraphPage(foodListRef: foodList, usageCount: widget.user.usageCount,))),
-  //       child: Text("To graph Page")),
-  //       Expanded(
-  //           child: ListView.builder(
-  //         itemCount: foodList.length,
-  //         itemBuilder: (context, index) {
-  //           final food = foodList[index];
-
-  //           return Column(
-  //             children: [
-  //               Image.network(food!.imageUrl, width: 200),
-  //               const SizedBox(height: 10),
-  //               Text(food.point.toStringAsFixed(1)),
-  //               const SizedBox(height: 30),
-  //               ],
-  //             );
-  //           },
-  //         ),
-  //       ),
-  //     ]
-  //   );
-
   return Scaffold(
     appBar: AppBar(
       title: const Text("Dashboard"),
@@ -103,7 +77,7 @@ Widget build(BuildContext context) {
           onTap: () {
             // Handle tap event for each food item
             Navigator.pushNamed(context, '/food-detail-page', arguments: {
-              'foodName': 'Food ${index + 1}', // You can replace this with actual food name if available
+              'foodName': 'Food ${index + 1}',
               'imageUrl': food.imageUrl,
               'point': food.point,
             });

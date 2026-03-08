@@ -6,7 +6,7 @@ class CloudinaryService {
   final String cloudName = "keephealthy";
 
 
-  Future<String?> uploadProfilePicture(String imagePath, String userID) async {
+  Future<String?> uploadProfilePicture(String imagePath) async {
     final url = Uri.parse(
       "https://api.cloudinary.com/v1_1/$cloudName/image/upload",
     );
@@ -14,8 +14,8 @@ class CloudinaryService {
     final request = http.MultipartRequest("POST", url);
 
     request.fields['upload_preset'] = "user_upload";
-    request.fields['public_id'] = userID;
 
+    
     request.files.add(
       await http.MultipartFile.fromPath('file', imagePath),
     );
@@ -56,6 +56,10 @@ class CloudinaryService {
       print("Upload failed: ${response.statusCode}");
       throw "Upload Failed";
     }
+  }
+
+  Future<void> getSignature(String uID) async{
+
   }
 
 }

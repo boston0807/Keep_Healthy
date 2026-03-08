@@ -6,7 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 
 class ProfilePage extends StatefulWidget {
-  final User user ;
+  final User user;
   const ProfilePage({super.key, required this.user});
 
   @override
@@ -14,12 +14,16 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-
   late final DatabaseService databaseService;
   late final CloudinaryService cloudinaryService;
 
+  static const _bg = Color(0xFF0F1117);
+  static const _purple = Color(0xFF6C63FF);
+  static const _teal = Color(0xFF00D4AA);
+  static const _pink = Color(0xFFFF7B9C);
+
   @override
-  void initState(){
+  void initState() {
     super.initState();
     databaseService = DatabaseService();
     cloudinaryService = CloudinaryService();
@@ -28,109 +32,267 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: _bg,
       appBar: AppBar(
-        title: Text("${widget.user.username}'s Profile",style: TextStyle(
-          fontSize: 30,   
-          fontWeight: FontWeight.bold,
-        ),),
+        backgroundColor: _bg,
+        elevation: 0,
+        title: const Text(
+          "Profile",
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
       ),
-      body: Padding(padding: EdgeInsets.all(20),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                key: ValueKey(widget.user.imageUrl),
-                padding: EdgeInsets.all(5),
-                width: 200,
-                height: 200,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  image: DecorationImage(image: 
-                    widget.user.imageUrl == null ? 
-                    const AssetImage("assets/images/default_user.jpg")  : NetworkImage(widget.user.imageUrl!,),
-                    fit: BoxFit.cover,
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── Avatar ──────────────────────────────────────
+            Center(
+              child: Stack(
+                alignment: Alignment.bottomRight,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(3),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: const LinearGradient(
+                          colors: [_purple, _teal]),
+                      boxShadow: [
+                        BoxShadow(
+                          color: _purple.withOpacity(0.4),
+                          blurRadius: 20,
+                          spreadRadius: 2,
+                        )
+                      ],
+                    ),
+                    child: CircleAvatar(
+                      key: ValueKey(widget.user.imageUrl),
+                      radius: 52,
+                      backgroundImage: widget.user.imageUrl == null
+                          ? const AssetImage("assets/images/default_user.jpg")
+                          : NetworkImage(widget.user.imageUrl!) as ImageProvider,
+                    ),
                   ),
-                  boxShadow: [BoxShadow(color: Colors.black38, offset: Offset(1, 4), blurRadius: 5)]
+                  GestureDetector(
+                    onTap: _pickImage,
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: const LinearGradient(
+                            colors: [_purple, _teal]),
+                        border: Border.all(color: _bg, width: 2),
+                      ),
+                      child: const Icon(Icons.camera_alt_rounded,
+                          color: Colors.white, size: 16),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
+
+            // ── Name ─────────────────────────────────────────
+            Center(
+              child: Column(
+                children: [
+                  Text(
+                    "${widget.user.name} ${widget.user.surName}",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    "@${widget.user.username}",
+                    style: const TextStyle(
+                        color: _teal,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 1.2),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // ── Stat Cards ───────────────────────────────────
+            Row(
+              children: [
+                _statCard(Icons.monitor_weight_rounded,
+                    "${widget.user.weight.toStringAsFixed(1)} kg", "Weight", _purple),
+                const SizedBox(width: 12),
+                _statCard(Icons.bar_chart_rounded,
+                    "${widget.user.usageCount}", "Progress", _teal),
+              ],
+            ),
+            const SizedBox(height: 24),
+
+            // ── Account Info ─────────────────────────────────
+            Text("ACCOUNT INFO",
+                style: TextStyle(
+                    color: Colors.white.withOpacity(0.4),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.8)),
+            const SizedBox(height: 10),
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.04),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.white.withOpacity(0.08)),
+              ),
+              child: Column(
+                children: [
+                  _infoRow(Icons.email_rounded, "Email",
+                      widget.user.email, _purple),
+                  Divider(height: 1, color: Colors.white.withOpacity(0.06),
+                      indent: 16, endIndent: 16),
+                  _infoRow(Icons.person_rounded, "Full Name",
+                      "${widget.user.name} ${widget.user.surName}", _teal),
+                  Divider(height: 1, color: Colors.white.withOpacity(0.06),
+                      indent: 16, endIndent: 16),
+                  _infoRow(Icons.alternate_email_rounded, "Username",
+                      widget.user.username, _pink),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // ── Settings ─────────────────────────────────────
+            Text("SETTINGS",
+                style: TextStyle(
+                    color: Colors.white.withOpacity(0.4),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.8)),
+            const SizedBox(height: 10),
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.04),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.white.withOpacity(0.08)),
+              ),
+              child: InkWell(
+                onTap: _pickImage,
+                borderRadius: BorderRadius.circular(20),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16, vertical: 16),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: _purple.withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(Icons.add_a_photo_rounded,
+                            color: _purple, size: 18),
+                      ),
+                      const SizedBox(width: 14),
+                      const Text("Change Profile Picture",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600)),
+                      const Spacer(),
+                      Icon(Icons.chevron_right_rounded,
+                          color: Colors.white.withOpacity(0.3)),
+                    ],
+                  ),
                 ),
               ),
-              SizedBox(
-                height: 40,
-              ),
-              Text("${widget.user.name}    ${widget.user.surName}", style: TextStyle(fontSize: 30, shadows: [Shadow(color: const Color.fromARGB(255, 89, 89, 89), offset: Offset(0, 3), blurRadius: 1)], fontWeight: FontWeight.bold),),
-              SizedBox(
-                height: 30,
-              ),
-              Text("Weight: ${widget.user.weight.toStringAsFixed(1)}", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, shadows: [Shadow(color: const Color.fromARGB(255, 89, 89, 89), offset: Offset(0, 3), blurRadius: 1)],)),
-              SizedBox(
-                height: 30,
-              ),
-              Text("User Email: ${widget.user.email}", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, shadows: [Shadow(color: const Color.fromARGB(255, 89, 89, 89), offset: Offset(0, 3), blurRadius: 1)],)),
-              SizedBox(
-                height: 30,
-              ),
-              Text("Progress Count: ${widget.user.usageCount}", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, shadows: [Shadow(color: const Color.fromARGB(255, 89, 89, 89), offset: Offset(0, 3), blurRadius: 1)],)),
-              SizedBox(
-                height: 30,
-              ),
-              Padding(padding: EdgeInsets.all(10),
-              child: SizedBox(
-                child:  ElevatedButton(onPressed: () async{
-                  final ImagePicker imagePicker = ImagePicker();
-                  final XFile? pickedFile = await imagePicker.pickImage(source: ImageSource.gallery, imageQuality: 80, maxWidth: 1024);
-                  if (pickedFile == null){
-                    return;
-                  }
-                  else{
-                    final String uID = auth.FirebaseAuth.instance.currentUser!.uid;
-                    final String? uploadUrl = await cloudinaryService.uploadProfilePicture(pickedFile.path);
-                    setState(() {
-                      widget.user.imageUrl = uploadUrl;
-                    });
-                    databaseService.updateProfileImageUrl(widget.user.imageUrl!, uID);
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 20, horizontal: 15),
-                  backgroundColor: Colors.white24,
-                  foregroundColor: Colors.black
-                ),
-                child: Text("Change Profile Picture", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, shadows: [Shadow(color: const Color.fromARGB(255, 129, 129, 129), offset: Offset(0, 1), blurRadius: 1)],)),
-                  ),
-                )       
-              ),       
-            ],
-          ),
-        )
+            ),
+          ],
+        ),
       ),
     );
   }
-}
 
-    // return Column(
-    //   mainAxisAlignment: MainAxisAlignment.start,
-    //   children: [
-    //     widget.user.imageUrl == null ?
-    //     Image.asset("assets/iamge/default_user.jpg") :
-    //     Image.network(widget.user.imageUrl!,
-    //     errorBuilder: (context, error, stackTrace) => Image.asset("assets/images/default_user.jpg"),),
-    //     SizedBox(height: 30,),
-    //     ElevatedButton(onPressed: () async{
-    //       final ImagePicker imagePicker = ImagePicker();
-    //       final XFile? pickedFile = await imagePicker.pickImage(source: ImageSource.gallery, imageQuality: 80, maxWidth: 1024);
-    //       if (pickedFile == null){
-    //         return;
-    //       }
-    //       else{
-    //         final String uID = auth.FirebaseAuth.instance.currentUser!.uid;
-    //         final String? uploadUrl = await cloudinary.upload(pickedFile.path, uID);
-    //         setState(() {
-    //           widget.user.imageUrl = uploadUrl;
-    //         });
-    //         dataBase.updateProfileImageUrl(widget.user.imageUrl!, uID);
-    //       }
-    //     }, child: Text("Change Profile Picture"))
-    //   ],
-    // );
+  Widget _statCard(IconData icon, String value, String label, Color color) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: color.withOpacity(0.25)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, color: color, size: 22),
+            const SizedBox(height: 10),
+            Text(value,
+                style: TextStyle(
+                    color: color,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold)),
+            const SizedBox(height: 2),
+            Text(label,
+                style: TextStyle(
+                    color: Colors.white.withOpacity(0.45), fontSize: 12)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _infoRow(IconData icon, String label, String value, Color color) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: color, size: 18),
+          ),
+          const SizedBox(width: 14),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label,
+                  style: TextStyle(
+                      color: Colors.white.withOpacity(0.4),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 0.8)),
+              const SizedBox(height: 2),
+              Text(value,
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600)),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _pickImage() async {
+    final ImagePicker imagePicker = ImagePicker();
+    final XFile? pickedFile = await imagePicker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 80,
+      maxWidth: 1024,
+    );
+    if (pickedFile == null) return;
+
+    final String uID = auth.FirebaseAuth.instance.currentUser!.uid;
+    final String? uploadUrl =
+        await cloudinaryService.uploadProfilePicture(pickedFile.path);
+    setState(() {
+      widget.user.imageUrl = uploadUrl;
+    });
+    databaseService.updateProfileImageUrl(widget.user.imageUrl!, uID);
+  }
+}

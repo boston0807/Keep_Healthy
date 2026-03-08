@@ -2,173 +2,587 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:keep_healthy/models/food_nutrient.dart';
 
-class GraphPage extends StatelessWidget {
+enum ViewMode { daily, weekly, monthly }
+
+class GraphPage extends StatefulWidget {
   final List<FoodNutrient> foodListRef;
   final int usageCount;
 
-  const GraphPage({super.key, required this.foodListRef, required this.usageCount});
+  const GraphPage(
+      {super.key, required this.foodListRef, required this.usageCount});
+
+  @override
+  State<GraphPage> createState() => _GraphPageState();
+}
+
+class _GraphPageState extends State<GraphPage> {
+  ViewMode _viewMode = ViewMode.daily;
+
+  static const _bg = Color(0xFF0F1117);
+  static const _card = Color(0xFF1A1F35);
+  static const _accent1 = Color(0xFF6C63FF);
+  static const _accent2 = Color(0xFF00D4AA);
+  static const _accent3 = Color(0xFFFF7B9C);
+
+  List<FoodNutrient> get _sorted {
+    final s = List<FoodNutrient>.from(widget.foodListRef);
+    s.sort((a, b) => a.date!.compareTo(b.date!));
+    return s;
+  }
+
+  List<_DataPoint> get _aggregated {
+    final sorted = _sorted;
+    if (sorted.isEmpty) return [];
+
+    switch (_viewMode) {
+      case ViewMode.daily:
+        return sorted.map((f) {
+          final d = f.date!;
+          return _DataPoint("${d.day}/${d.month}", f.point);
+        }).toList();
+
+      case ViewMode.weekly:
+        final Map<int, List<double>> groups = {};
+        final Map<int, String> labels = {};
+        for (final f in sorted) {
+          final d = f.date!;
+          final weekKey = _isoWeekKey(d);
+          groups.putIfAbsent(weekKey, () => []);
+          groups[weekKey]!.add(f.point);
+          labels.putIfAbsent(weekKey,
+              () => "W${_isoWeek(d)}\n${d.month}/${d.year.toString().substring(2)}");
+        }
+        final keys = groups.keys.toList()..sort();
+        return keys.map((k) {
+          final avg = groups[k]!.reduce((a, b) => a + b) / groups[k]!.length;
+          return _DataPoint(labels[k]!, avg);
+        }).toList();
+
+      case ViewMode.monthly:
+        final Map<int, List<double>> groups = {};
+        final Map<int, String> labels = {};
+        const months = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+          "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        for (final f in sorted) {
+          final d = f.date!;
+          final key = d.year * 100 + d.month;
+          groups.putIfAbsent(key, () => []);
+          groups[key]!.add(f.point);
+          labels.putIfAbsent(
+              key, () => "${months[d.month]}\n${d.year.toString().substring(2)}");
+        }
+        final keys = groups.keys.toList()..sort();
+        return keys.map((k) {
+          final avg = groups[k]!.reduce((a, b) => a + b) / groups[k]!.length;
+          return _DataPoint(labels[k]!, avg);
+        }).toList();
+    }
+  }
+
+  int _isoWeekKey(DateTime d) => d.year * 100 + _isoWeek(d);
+
+  int _isoWeek(DateTime d) {
+    final startOfYear = DateTime(d.year, 1, 1);
+    final diff = d.difference(startOfYear).inDays;
+    return ((diff + startOfYear.weekday - 1) / 7).floor() + 1;
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (foodListRef.isEmpty) {
-      return const Scaffold(
-        body: Center(child: Text("No data")),
-      );
-    }
+    final data = _aggregated;
+    final isEmpty = data.isEmpty;
 
-    List<FoodNutrient> sorted = List.from(foodListRef);
-    sorted.sort((a, b) => a.date!.compareTo(b.date!));
+    final double maxPoint =
+        isEmpty ? 100 : FoodNutrient.maxPoint(widget.foodListRef);
+    final double minPoint =
+        isEmpty ? 0 : FoodNutrient.minPoint(widget.foodListRef);
+    final double avg = isEmpty
+        ? 0
+        : widget.foodListRef.map((f) => f.point).reduce((a, b) => a + b) /
+            widget.foodListRef.length;
 
-    List<FlSpot> spots = [];
-    int i = 0;
-    while (i < sorted.length) {
-      spots.add(FlSpot(i.toDouble(), sorted[i].point));
-      i++;
-    }
+    final spots = data.asMap().entries.map((e) {
+      return FlSpot(e.key.toDouble(), e.value.point);
+    }).toList();
 
     return Scaffold(
+      backgroundColor: _bg,
       appBar: AppBar(
-        title: const Text("Health Score Overview"),
+        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: _bg,
+        elevation: 0,
+        title: const Text(
+          "Health Score",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         centerTitle: true,
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            SizedBox(
-              height: 20,
-            ),
-            Card(
-              elevation: 6,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: SizedBox(
-                  width: 340,   
-                  height: 200,  
-                  child: LineChart(
-                    LineChartData(
-                      minX: 0,
-                      maxX: spots.length.toDouble() - 1,
-                      minY: 0,
-                      maxY: 100,
-
-                      gridData: FlGridData(
-                        show: true,
-                        drawVerticalLine: false,
+      body: isEmpty
+          ? _emptyState()
+          : SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _ViewToggle(
+                    current: _viewMode,
+                    onChanged: (v) => setState(() => _viewMode = v),
+                  ),
+                  const SizedBox(height: 18),
+                  _ChartCard(spots: spots, data: data),
+                  const SizedBox(height: 20),
+                  _SectionLabel(
+                    label: _viewMode == ViewMode.daily
+                        ? "DAILY SUMMARY"
+                        : _viewMode == ViewMode.weekly
+                            ? "WEEKLY SUMMARY"
+                            : "MONTHLY SUMMARY",
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      _MiniStat(
+                        label: "Best",
+                        value: maxPoint.toStringAsFixed(1),
+                        icon: Icons.emoji_events_rounded,
+                        color: _accent2,
                       ),
-                      borderData: FlBorderData(show: false),
-                      extraLinesData: ExtraLinesData(
-                        horizontalLines: [
-                          HorizontalLine(
-                            y: 80,
-                            dashArray: [6, 4],
-                            color: Colors.green,
-                            strokeWidth: 1,
-                            label: HorizontalLineLabel(
-                              show: true,
-                              alignment: Alignment.topLeft,
-                              labelResolver: (line) => "Excellent",
-                              style: const TextStyle(
-                                color: Colors.green,
-                                fontWeight: FontWeight.bold,
-                              ),
+                      const SizedBox(width: 10),
+                      _MiniStat(
+                        label: "Lowest",
+                        value: minPoint.toStringAsFixed(1),
+                        icon: Icons.trending_down_rounded,
+                        color: _accent3,
+                      ),
+                      const SizedBox(width: 10),
+                      _MiniStat(
+                        label: "Average",
+                        value: avg.toStringAsFixed(1),
+                        icon: Icons.bar_chart_rounded,
+                        color: _accent1,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  _GlassCard(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 14),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: _accent1.withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(12),
                             ),
+                            child: const Icon(Icons.calculate_rounded,
+                                color: _accent1, size: 22),
                           ),
-                          HorizontalLine(
-                            y: 50,
-                            dashArray: [6, 4],
-                            color: Colors.orange,
-                            strokeWidth: 1,
+                          const SizedBox(width: 14),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Total Calculations",
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.45),
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0.8,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                "${widget.usageCount} times",
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                      lineBarsData: [
-                        LineChartBarData(
-                          spots: spots,
-                          isCurved: true,
-                          barWidth: 3,
-                          dotData: const FlDotData(show: false),
-                          belowBarData: BarAreaData(
-                            show: true,
-                            gradient: LinearGradient(
-                              colors: [
-                                Colors.blue.withOpacity(0.3),
-                                Colors.blue.withOpacity(0.05),
-                              ],
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                            ),
-                          ),
-                        ),
-                      ],
-                      titlesData: FlTitlesData(
-                        bottomTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            reservedSize: 30,
-                            getTitlesWidget: (value, meta) {
-                              int index = value.toInt();
-                              if (index < 0 || index >= sorted.length) {
-                                return const SizedBox();
-                              }
-
-                              int interval = 1;
-                              if (sorted.length > 6) {
-                                interval = (sorted.length / 6).ceil();
-                              }
-
-                              if (index % interval != 0) {
-                                return const SizedBox();
-                              }
-
-                              DateTime date = sorted[index].date!;
-                              return Padding(
-                                padding: const EdgeInsets.only(top: 6),
-                                child: Text(
-                                  "${date.day}/${date.month}",
-                                  style: const TextStyle(fontSize: 10),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                        leftTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            reservedSize: 35,
-                          ),
-                        ),
-                        topTitles: const AxisTitles(
-                          sideTitles: SideTitles(showTitles: false),
-                        ),
-                        rightTitles: const AxisTitles(
-                          sideTitles: SideTitles(showTitles: false),
-                        )
-                      ),
                     ),
+                  ),
+                  const SizedBox(height: 28),
+                ],
+              ),
+            ),
+    );
+  }
+
+  Widget _emptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.bar_chart_rounded,
+              size: 64, color: Colors.white.withOpacity(0.2)),
+          const SizedBox(height: 16),
+          Text("No data yet",
+              style: TextStyle(
+                  color: Colors.white.withOpacity(0.4),
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600)),
+        ],
+      ),
+    );
+  }
+}
+
+  Widget _emptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.bar_chart_rounded,
+              size: 64, color: Colors.white.withOpacity(0.2)),
+          const SizedBox(height: 16),
+          Text("No data yet",
+              style: TextStyle(
+                  color: Colors.white.withOpacity(0.4),
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600)),
+        ],
+      ),
+    );
+  }
+
+class _DataPoint {
+  final String label;
+  final double point;
+  const _DataPoint(this.label, this.point);
+}
+
+class _ViewToggle extends StatelessWidget {
+  final ViewMode current;
+  final ValueChanged<ViewMode> onChanged;
+
+  const _ViewToggle({required this.current, required this.onChanged});
+
+  static const _accent1 = Color(0xFF6C63FF);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.white.withOpacity(0.08)),
+      ),
+      child: Row(
+        children: ViewMode.values.map((mode) {
+          final selected = mode == current;
+          final label = mode == ViewMode.daily
+              ? "Daily"
+              : mode == ViewMode.weekly
+                  ? "Weekly"
+                  : "Monthly";
+          return Expanded(
+            child: GestureDetector(
+              onTap: () => onChanged(mode),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  gradient: selected
+                      ? const LinearGradient(
+                          colors: [Color(0xFF6C63FF), Color(0xFF00D4AA)],
+                        )
+                      : null,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  label,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: selected
+                        ? Colors.white
+                        : Colors.white.withOpacity(0.45),
+                    fontWeight:
+                        selected ? FontWeight.bold : FontWeight.w500,
+                    fontSize: 13,
                   ),
                 ),
               ),
             ),
-            SizedBox(
-              height: 20,
+          );
+        }).toList(),
+      ),
+    );
+  }
+}
+
+class _ChartCard extends StatelessWidget {
+  final List<FlSpot> spots;
+  final List<_DataPoint> data;
+
+  const _ChartCard({required this.spots, required this.data});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(12, 20, 16, 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1A1F35),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.white.withOpacity(0.07)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF6C63FF).withOpacity(0.1),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          )
+        ],
+      ),
+      child: SizedBox(
+        height: 220,
+        child: LineChart(
+          LineChartData(
+            minX: 0,
+            maxX: spots.isEmpty ? 1 : spots.length.toDouble() - 1,
+            minY: 0,
+            maxY: 100,
+            clipData: const FlClipData.all(),
+            gridData: FlGridData(
+              show: true,
+              drawVerticalLine: false,
+              horizontalInterval: 25,
+              getDrawingHorizontalLine: (v) => FlLine(
+                color: Colors.white.withOpacity(0.06),
+                strokeWidth: 1,
+              ),
             ),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [            
-                  Text("Max Point: ${FoodNutrient.maxPoint(foodListRef)}"),
-                  Text("Min Point: ${FoodNutrient.minPoint(foodListRef)}"),
-                  Text("Food Calculate Count: ${usageCount}"),
-                ],
-              )
+            borderData: FlBorderData(show: false),
+            extraLinesData: ExtraLinesData(
+              horizontalLines: [
+                HorizontalLine(
+                  y: 80,
+                  dashArray: [6, 4],
+                  color: const Color(0xFF00D4AA),
+                  strokeWidth: 1.2,
+                  label: HorizontalLineLabel(
+                    show: true,
+                    alignment: Alignment.topLeft,
+                    labelResolver: (_) => "  Excellent",
+                    style: const TextStyle(
+                      color: Color(0xFF00D4AA),
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                HorizontalLine(
+                  y: 50,
+                  dashArray: [6, 4],
+                  color: Colors.orange.withOpacity(0.7),
+                  strokeWidth: 1.2,
+                  label: HorizontalLineLabel(
+                    show: true,
+                    alignment: Alignment.topLeft,
+                    labelResolver: (_) => "  Average",
+                    style: TextStyle(
+                      color: Colors.orange.withOpacity(0.8),
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ]
+            lineBarsData: [
+              LineChartBarData(
+                spots: spots,
+                isCurved: true,
+                curveSmoothness: 0.35,
+                barWidth: 3,
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF6C63FF), Color(0xFF00D4AA)],
+                ),
+                dotData: FlDotData(
+                  show: spots.length <= 12,
+                  getDotPainter: (spot, pct, bar, idx) =>
+                      FlDotCirclePainter(
+                    radius: 4,
+                    color: const Color(0xFF6C63FF),
+                    strokeWidth: 2,
+                    strokeColor: Colors.white,
+                  ),
+                ),
+                belowBarData: BarAreaData(
+                  show: true,
+                  gradient: LinearGradient(
+                    colors: [
+                      const Color(0xFF6C63FF).withOpacity(0.25),
+                      const Color(0xFF00D4AA).withOpacity(0.02),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                ),
+              ),
+            ],
+            lineTouchData: LineTouchData(
+              touchTooltipData: LineTouchTooltipData(
+                tooltipBgColor: const Color(0xFF1A1F35),
+                tooltipBorder: const BorderSide(
+                    color: Color(0xFF6C63FF), width: 1),
+                getTooltipItems: (touchedSpots) => touchedSpots.map((s) {
+                  return LineTooltipItem(
+                    s.y.toStringAsFixed(1),
+                    const TextStyle(
+                      color: Color(0xFF00D4AA),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+            titlesData: FlTitlesData(
+              bottomTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  reservedSize: 36,
+                  getTitlesWidget: (value, meta) {
+                    final idx = value.toInt();
+                    if (idx < 0 || idx >= data.length) {
+                      return const SizedBox();
+                    }
+                    int interval = 1;
+                    if (data.length > 7) {
+                      interval = (data.length / 6).ceil();
+                    }
+                    if (idx % interval != 0) return const SizedBox();
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 6),
+                      child: Text(
+                        data[idx].label,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 9,
+                          color: Colors.white.withOpacity(0.45),
+                          height: 1.3,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              leftTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  reservedSize: 32,
+                  interval: 25,
+                  getTitlesWidget: (value, meta) => Text(
+                    value.toInt().toString(),
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: Colors.white.withOpacity(0.35),
+                    ),
+                  ),
+                ),
+              ),
+              topTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false)),
+              rightTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false)),
+            ),
+          ),
         ),
-      )
+      ),
+    );
+  }
+}
+
+class _MiniStat extends StatelessWidget {
+  final String label;
+  final String value;
+  final IconData icon;
+  final Color color;
+
+  const _MiniStat(
+      {required this.label,
+      required this.value,
+      required this.icon,
+      required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withOpacity(0.2)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, color: color, size: 18),
+            const SizedBox(height: 8),
+            Text(
+              value,
+              style: TextStyle(
+                color: color,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.4),
+                fontSize: 11,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _GlassCard extends StatelessWidget {
+  final Widget child;
+  const _GlassCard({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.04),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withOpacity(0.08)),
+      ),
+      child: child,
+    );
+  }
+}
+
+class _SectionLabel extends StatelessWidget {
+  final String label;
+  const _SectionLabel({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      label,
+      style: TextStyle(
+        color: Colors.white.withOpacity(0.4),
+        fontSize: 11,
+        fontWeight: FontWeight.w700,
+        letterSpacing: 1.8,
+      ),
     );
   }
 }

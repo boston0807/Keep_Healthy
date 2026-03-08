@@ -10,6 +10,9 @@ import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:keep_healthy/services/database_service.dart';
 import 'dart:async';
 import '../services/notification_service.dart';
+import 'package:provider/provider.dart';
+import '../providers/theme_provider.dart';
+import '../config/theme_config.dart';
 
 class SettingPage extends StatefulWidget {
   final app_user.User user ;
@@ -26,11 +29,12 @@ class _SettingPageState extends State<SettingPage> {
   String _searchQuery = "";
 
   late final List<Map<String, dynamic>> _settingItems = [
-  {'title': 'Account',        'icon': Icons.person,        'color': Colors.white},
-  {'title': 'Notifications',  'icon': Icons.notifications, 'color': Colors.white},
-  {'title': 'Help & Support', 'icon': Icons.help,          'color': Colors.white},
-  {'title': 'Logout',         'icon': Icons.logout,        'color': Colors.red},
-];
+    {'title': 'Account',        'icon': Icons.person,           'color': Colors.white},
+    {'title': 'Notifications',  'icon': Icons.notifications,    'color': Colors.white},
+    {'title': 'Theme',          'icon': Icons.palette_outlined, 'color': Colors.white}, // ← เพิ่มตรงนี้
+    {'title': 'Help & Support', 'icon': Icons.help,             'color': Colors.white},
+    {'title': 'Logout',         'icon': Icons.logout,           'color': Colors.red},
+  ];
 
   static const _bg = Color(0xFF0F1117);
 
@@ -169,6 +173,50 @@ class _SettingPageState extends State<SettingPage> {
           await _checkNotificationStatus();
         }
       });
+      break;
+    case 'Theme':
+      final themeProvider = context.read<ThemeProvider>();
+      showModalBottomSheet(
+        context: context,
+        backgroundColor: const Color(0xFF1A1F35),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        builder: (_) => ChangeNotifierProvider.value(
+          value: themeProvider,
+          child: Consumer<ThemeProvider>(
+            builder: (context, provider, _) => Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text("Choose Theme",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 16),
+                  ...AppThemes.all.map((t) => ListTile(
+                        leading: CircleAvatar(
+                            backgroundColor: t.accent, radius: 14),
+                        title: Text(t.name,
+                            style: const TextStyle(color: Colors.white)),
+                        trailing: provider.current.id == t.id
+                            ? const Icon(Icons.check_rounded,
+                                color: Colors.white)
+                            : null,
+                        onTap: () {
+                          provider.setTheme(t);
+                          Navigator.pop(context);
+                        },
+                      )),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
       break;
     case 'Help & Support':
       showDialog(

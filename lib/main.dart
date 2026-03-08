@@ -11,13 +11,20 @@ import 'screens/main_screen.dart';
 import 'pages/food_detail_page.dart';
 import 'models/food_nutrient.dart';
 import 'pages/account_page.dart';
+import 'package:provider/provider.dart';
+import 'providers/theme_provider.dart';
 
   void main() async{
     WidgetsFlutterBinding.ensureInitialized();
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    runApp(const MyApp());
+    runApp(
+      ChangeNotifierProvider(
+        create: (_) => ThemeProvider(),
+        child: const MyApp(),
+      ),
+    );
   }
 
   class MyApp extends StatelessWidget {

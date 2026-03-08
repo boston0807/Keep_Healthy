@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
+import 'package:provider/provider.dart';
 import '../models/user.dart' as app_user;
+import '../providers/theme_provider.dart';
 
 class AccountPage extends StatefulWidget {
   final app_user.User user;
@@ -11,15 +13,11 @@ class AccountPage extends StatefulWidget {
 }
 
 class _AccountPageState extends State<AccountPage> {
-  static const _bg = Color(0xFF0F1117);
-  static const _card = Color(0xFF1A1F35);
-  static const _accent = Color(0xFF4F8EF7);
-  static const _textPrimary = Color(0xFFEEF0F8);
-  static const _textSecondary = Color(0xFF7B82A3);
   static const _errorColor = Color(0xFFFF5C6A);
   static const _successColor = Color(0xFF3ECFA3);
 
   bool _passwordVisible = false;
+  
   late String _email;
 
   @override
@@ -39,6 +37,8 @@ class _AccountPageState extends State<AccountPage> {
     bool showConfirm = false;
     bool isLoading = false;
     String? errorMessage;
+
+    final theme = Provider.of<ThemeProvider>(context).current;
 
     showDialog(
       context: context,
@@ -119,17 +119,17 @@ class _AccountPageState extends State<AccountPage> {
             }
 
             return AlertDialog(
-              backgroundColor: _card,
+              backgroundColor: theme.card,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20)),
-              title: const Row(
+              title: Row(
                 children: [
-                  Icon(Icons.lock_outline_rounded, color: _accent, size: 22),
-                  SizedBox(width: 10),
+                  Icon(Icons.lock_outline_rounded, color: theme.accent, size: 22),
+                  const SizedBox(width: 10),
                   Text(
                     "Change Password",
                     style: TextStyle(
-                      color: _textPrimary,
+                      color: theme.textPrimary,
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
                     ),
@@ -206,13 +206,13 @@ class _AccountPageState extends State<AccountPage> {
                 TextButton(
                   onPressed:
                       isLoading ? null : () => Navigator.pop(context),
-                  child: const Text("Cancel",
-                      style: TextStyle(color: _textSecondary)),
+                  child: Text("Cancel",
+                      style: TextStyle(color: theme.textSecondary)),
                 ),
                 FilledButton(
                   onPressed: isLoading ? null : handleChangePassword,
                   style: FilledButton.styleFrom(
-                    backgroundColor: _accent,
+                    backgroundColor: theme.accent,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10)),
                   ),
@@ -238,19 +238,21 @@ class _AccountPageState extends State<AccountPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Provider.of<ThemeProvider>(context).current;
+
     return Scaffold(
-      backgroundColor: _bg,
+      backgroundColor: theme.bg,
       appBar: AppBar(
-        backgroundColor: _bg,
+        backgroundColor: theme.bg,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded,
-              color: _textPrimary, size: 20),
+          icon: Icon(Icons.arrow_back_ios_new_rounded,
+              color: theme.textPrimary, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           "Account",
           style: TextStyle(
-            color: _textPrimary,
+            color: theme.textPrimary,
             fontSize: 22,
             fontWeight: FontWeight.w700,
           ),
@@ -262,10 +264,10 @@ class _AccountPageState extends State<AccountPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Section label
-            const Text(
+            Text(
               "ACCOUNT INFO",
               style: TextStyle(
-                color: _textSecondary,
+                color: theme.textSecondary,
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 2,
@@ -276,7 +278,7 @@ class _AccountPageState extends State<AccountPage> {
             // Info Card
             Container(
               decoration: BoxDecoration(
-                color: _card,
+                color: theme.card,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
@@ -289,7 +291,7 @@ class _AccountPageState extends State<AccountPage> {
                   ),
 
                   Divider(
-                      color: _textSecondary.withOpacity(0.15),
+                      color: theme.textSecondary.withOpacity(0.15),
                       height: 1,
                       indent: 20,
                       endIndent: 20),
@@ -303,21 +305,21 @@ class _AccountPageState extends State<AccountPage> {
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: _accent.withOpacity(0.1),
+                            color: theme.accent.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: const Icon(Icons.lock_outline_rounded,
-                              color: _accent, size: 18),
+                          child: Icon(Icons.lock_outline_rounded,
+                              color: theme.accent, size: 18),
                         ),
                         const SizedBox(width: 14),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
+                              Text(
                                 "Password",
                                 style: TextStyle(
-                                  color: _textSecondary,
+                                  color: theme.textSecondary,
                                   fontSize: 12,
                                 ),
                               ),
@@ -326,8 +328,8 @@ class _AccountPageState extends State<AccountPage> {
                                 _passwordVisible
                                     ? "••••••••  (hidden)"
                                     : "••••••••",
-                                style: const TextStyle(
-                                  color: _textPrimary,
+                                style: TextStyle(
+                                  color: theme.textPrimary,
                                   fontSize: 15,
                                   fontWeight: FontWeight.w500,
                                   letterSpacing: 2,
@@ -341,7 +343,7 @@ class _AccountPageState extends State<AccountPage> {
                             _passwordVisible
                                 ? Icons.visibility_off_rounded
                                 : Icons.visibility_rounded,
-                            color: _textSecondary,
+                            color: theme.textSecondary,
                             size: 20,
                           ),
                           onPressed: () => setState(
@@ -364,8 +366,8 @@ class _AccountPageState extends State<AccountPage> {
                 icon: const Icon(Icons.lock_reset_rounded, size: 18),
                 label: const Text("Change Password"),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: _accent,
-                  side: BorderSide(color: _accent.withOpacity(0.5)),
+                  foregroundColor: theme.accent,
+                  side: BorderSide(color: theme.accent.withOpacity(0.5)),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14)),

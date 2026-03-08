@@ -1,6 +1,9 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:keep_healthy/models/food_nutrient.dart';
+import 'package:provider/provider.dart';
+import '../providers/theme_provider.dart';
+import '../config/theme_config.dart';
 
 enum ViewMode { daily, weekly, monthly }
 
@@ -18,8 +21,6 @@ class GraphPage extends StatefulWidget {
 class _GraphPageState extends State<GraphPage> {
   ViewMode _viewMode = ViewMode.daily;
 
-  static const _bg = Color(0xFF0F1117);
-  static const _card = Color(0xFF1A1F35);
   static const _accent1 = Color(0xFF6C63FF);
   static const _accent2 = Color(0xFF00D4AA);
   static const _accent3 = Color(0xFFFF7B9C);
@@ -89,6 +90,8 @@ class _GraphPageState extends State<GraphPage> {
 
   @override
   Widget build(BuildContext context) {
+
+    final theme = context.watch<ThemeProvider>().current;
     final data = _aggregated;
     final isEmpty = data.isEmpty;
 
@@ -106,15 +109,15 @@ class _GraphPageState extends State<GraphPage> {
     }).toList();
 
     return Scaffold(
-      backgroundColor: _bg,
+      backgroundColor: theme.bg,
       appBar: AppBar(
-        iconTheme: const IconThemeData(color: Colors.white),
-        backgroundColor: _bg,
+        iconTheme: IconThemeData(color: theme.textPrimary),
+        backgroundColor: theme.bg,
         elevation: 0,
-        title: const Text(
+        title: Text(
           "Health Score",
           style: TextStyle(
-            color: Colors.white,
+            color: theme.textPrimary,
             fontSize: 22,
             fontWeight: FontWeight.bold,
           ),
@@ -190,7 +193,7 @@ class _GraphPageState extends State<GraphPage> {
                               Text(
                                 "Total Calculations",
                                 style: TextStyle(
-                                  color: Colors.white.withOpacity(0.45),
+                                  color: theme.textPrimary.withOpacity(0.45),
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
                                   letterSpacing: 0.8,
@@ -199,8 +202,8 @@ class _GraphPageState extends State<GraphPage> {
                               const SizedBox(height: 2),
                               Text(
                                 "${widget.usageCount} times",
-                                style: const TextStyle(
-                                  color: Colors.white,
+                                style: TextStyle(
+                                  color: theme.textPrimary,
                                   fontSize: 17,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -219,16 +222,17 @@ class _GraphPageState extends State<GraphPage> {
   }
 
   Widget _emptyState() {
+    final theme = context.watch<ThemeProvider>().current;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.bar_chart_rounded,
-              size: 64, color: Colors.white.withOpacity(0.2)),
+              size: 64, color: theme.textPrimary.withOpacity(0.2)),
           const SizedBox(height: 16),
           Text("No data yet",
               style: TextStyle(
-                  color: Colors.white.withOpacity(0.4),
+                  color: theme.textPrimary.withOpacity(0.4),
                   fontSize: 18,
                   fontWeight: FontWeight.w600)),
         ],
@@ -236,24 +240,6 @@ class _GraphPageState extends State<GraphPage> {
     );
   }
 }
-
-  Widget _emptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.bar_chart_rounded,
-              size: 64, color: Colors.white.withOpacity(0.2)),
-          const SizedBox(height: 16),
-          Text("No data yet",
-              style: TextStyle(
-                  color: Colors.white.withOpacity(0.4),
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600)),
-        ],
-      ),
-    );
-  }
 
 class _DataPoint {
   final String label;
@@ -271,12 +257,14 @@ class _ViewToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<ThemeProvider>().current;
+    
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: theme.card,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withOpacity(0.08)),
+        border: Border.all(color: theme.textPrimary.withOpacity(0.08)),
       ),
       child: Row(
         children: ViewMode.values.map((mode) {
@@ -305,8 +293,8 @@ class _ViewToggle extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: selected
-                        ? Colors.white
-                        : Colors.white.withOpacity(0.45),
+                        ? theme.textPrimary
+                        : theme.textPrimary.withOpacity(0.45),
                     fontWeight:
                         selected ? FontWeight.bold : FontWeight.w500,
                     fontSize: 13,
@@ -329,12 +317,13 @@ class _ChartCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<ThemeProvider>().current;
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 20, 16, 12),
       decoration: BoxDecoration(
         color: const Color(0xFF1A1F35),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withOpacity(0.07)),
+        border: Border.all(color: theme.textPrimary.withOpacity(0.07)),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF6C63FF).withOpacity(0.1),
@@ -357,7 +346,7 @@ class _ChartCard extends StatelessWidget {
               drawVerticalLine: false,
               horizontalInterval: 25,
               getDrawingHorizontalLine: (v) => FlLine(
-                color: Colors.white.withOpacity(0.06),
+                color: Colors.white.withOpacity(0.06),  // ***NOT SURE IF NEED TO FIX OR NAH***
                 strokeWidth: 1,
               ),
             ),
@@ -516,6 +505,8 @@ class _MiniStat extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<ThemeProvider>().current;
+
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
@@ -541,7 +532,7 @@ class _MiniStat extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.4),
+                color: theme.textPrimary.withOpacity(0.6),
                 fontSize: 11,
               ),
             ),
@@ -558,11 +549,13 @@ class _GlassCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<ThemeProvider>().current;
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.04),
+        color: theme.textPrimary.withOpacity(0.04),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.08)),
+        border: Border.all(color: theme.textPrimary.withOpacity(0.08)),
       ),
       child: child,
     );
@@ -575,10 +568,11 @@ class _SectionLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<ThemeProvider>().current;
     return Text(
       label,
       style: TextStyle(
-        color: Colors.white.withOpacity(0.4),
+        color: theme.textPrimary.withOpacity(0.4),
         fontSize: 11,
         fontWeight: FontWeight.w700,
         letterSpacing: 1.8,

@@ -4,6 +4,8 @@ import 'package:fl_chart/fl_chart.dart';
 import '../models/user.dart';
 import '../models/food_nutrient.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+import '../providers/theme_provider.dart';
 
 class MenuPage extends StatefulWidget {
   final User user;
@@ -17,8 +19,6 @@ class _MenuPageState extends State<MenuPage> {
   List<FoodNutrient> foodList = [];
   bool isLoading = true;
 
-  static const _bg = Color(0xFF0F1117);
-  static const _card = Color(0xFF1A1F35);
   static const _purple = Color(0xFF6C63FF);
   static const _teal = Color(0xFF00D4AA);
   static const _pink = Color(0xFFFF7B9C);
@@ -49,20 +49,25 @@ class _MenuPageState extends State<MenuPage> {
       ..sort((a, b) => a.date!.compareTo(b.date!));
   }
 
-  List<FlSpot> get _spots => _sortedList.asMap().entries.map((e) => FlSpot(e.key.toDouble(), e.value.point)).toList();
+  List<FlSpot> get _spots => _sortedList
+      .asMap()
+      .entries
+      .map((e) => FlSpot(e.key.toDouble(), e.value.point))
+      .toList();
 
   FoodNutrient? get _lastMeal =>
       foodList.isEmpty ? null : _sortedList.last;
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<ThemeProvider>().current;
     final last = _lastMeal;
     final spots = _spots;
 
     return Scaffold(
-      backgroundColor: _bg,
+      backgroundColor: theme.bg,
       appBar: AppBar(
-        backgroundColor: _bg,
+        backgroundColor: theme.bg,
         elevation: 0,
         leading: Padding(
           padding: const EdgeInsets.all(8),
@@ -75,13 +80,15 @@ class _MenuPageState extends State<MenuPage> {
         ),
         title: Text(
           'Hello, ${widget.user.name}',
-          style: const TextStyle(
-              color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22),
+          style: TextStyle(
+              color: theme.textPrimary,
+              fontWeight: FontWeight.bold,
+              fontSize: 22),
         ),
         actions: [
           IconButton(
             icon: Icon(Icons.notifications_rounded,
-                color: Colors.white.withOpacity(0.7), size: 26),
+                color: theme.textSecondary, size: 26),
             onPressed: () {},
           ),
         ],
@@ -91,13 +98,14 @@ class _MenuPageState extends State<MenuPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Progress Card
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: _card,
+                color: theme.card,
                 borderRadius: BorderRadius.circular(28),
-                border: Border.all(color: Colors.white.withOpacity(0.07)),
+                border: Border.all(color: theme.textSecondary.withOpacity(0.15)),
                 boxShadow: [
                   BoxShadow(
                     color: _purple.withOpacity(0.12),
@@ -114,8 +122,8 @@ class _MenuPageState extends State<MenuPage> {
                     children: [
                       Text(
                         "${widget.user.username}'s Progress",
-                        style: const TextStyle(
-                            color: Colors.white,
+                        style: TextStyle(
+                            color: theme.textPrimary,
                             fontWeight: FontWeight.bold,
                             fontSize: 18),
                       ),
@@ -145,7 +153,7 @@ class _MenuPageState extends State<MenuPage> {
                             ? Center(
                                 child: Text("No data",
                                     style: TextStyle(
-                                        color: Colors.white.withOpacity(0.3),
+                                        color: theme.textSecondary,
                                         fontSize: 15)))
                             : LineChart(
                                 LineChartData(
@@ -190,20 +198,20 @@ class _MenuPageState extends State<MenuPage> {
                                   lineTouchData:
                                       const LineTouchData(enabled: false),
                                   titlesData: FlTitlesData(
-                                      leftTitles: AxisTitles(
-                                        sideTitles: SideTitles(
-                                          showTitles: true,
-                                          reservedSize: 28,
-                                          interval: 25,
-                                          getTitlesWidget: (value, meta) => Text(
-                                            value.toInt().toString(),
-                                            style: TextStyle(
-                                              fontSize: 10,
-                                              color: Colors.white.withOpacity(0.35),
-                                            ),
+                                    leftTitles: AxisTitles(
+                                      sideTitles: SideTitles(
+                                        showTitles: true,
+                                        reservedSize: 28,
+                                        interval: 25,
+                                        getTitlesWidget: (value, meta) => Text(
+                                          value.toInt().toString(),
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            color: theme.textSecondary,
                                           ),
                                         ),
                                       ),
+                                    ),
                                     topTitles: const AxisTitles(
                                         sideTitles:
                                             SideTitles(showTitles: false)),
@@ -236,8 +244,7 @@ class _MenuPageState extends State<MenuPage> {
                                               "${d.day}/${d.month}",
                                               style: TextStyle(
                                                   fontSize: 10,
-                                                  color: Colors.white
-                                                      .withOpacity(0.4)),
+                                                  color: theme.textSecondary),
                                             ),
                                           );
                                         },
@@ -252,9 +259,11 @@ class _MenuPageState extends State<MenuPage> {
             ),
 
             const SizedBox(height: 24),
+
+            // Last Meal
             Text("LAST MEAL",
                 style: TextStyle(
-                    color: Colors.white.withOpacity(0.4),
+                    color: theme.textSecondary,
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 1.8)),
@@ -264,24 +273,23 @@ class _MenuPageState extends State<MenuPage> {
                 ? Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: _card,
+                      color: theme.card,
                       borderRadius: BorderRadius.circular(24),
-                      border:
-                          Border.all(color: Colors.white.withOpacity(0.07)),
+                      border: Border.all(
+                          color: theme.textSecondary.withOpacity(0.15)),
                     ),
                     child: Center(
                       child: Text("No meal recorded",
                           style: TextStyle(
-                              color: Colors.white.withOpacity(0.3),
-                              fontSize: 15)),
+                              color: theme.textSecondary, fontSize: 15)),
                     ),
                   )
                 : Container(
                     decoration: BoxDecoration(
-                      color: _card,
+                      color: theme.card,
                       borderRadius: BorderRadius.circular(24),
-                      border:
-                          Border.all(color: Colors.white.withOpacity(0.07)),
+                      border: Border.all(
+                          color: theme.textSecondary.withOpacity(0.15)),
                       boxShadow: [
                         BoxShadow(
                           color: _teal.withOpacity(0.08),
@@ -303,10 +311,9 @@ class _MenuPageState extends State<MenuPage> {
                             errorBuilder: (_, __, ___) => Container(
                               width: 130,
                               height: 130,
-                              color: Colors.white.withOpacity(0.05),
+                              color: theme.textSecondary.withOpacity(0.08),
                               child: Icon(Icons.broken_image_rounded,
-                                  color: Colors.white.withOpacity(0.2),
-                                  size: 32),
+                                  color: theme.textSecondary, size: 32),
                             ),
                           ),
                         ),
@@ -320,7 +327,7 @@ class _MenuPageState extends State<MenuPage> {
                                 Text(
                                   "${last.date!.day}/${last.date!.month}/${last.date!.year}",
                                   style: TextStyle(
-                                      color: Colors.white.withOpacity(0.4),
+                                      color: theme.textSecondary,
                                       fontSize: 12),
                                 ),
                                 const SizedBox(height: 10),
@@ -350,6 +357,8 @@ class _MenuPageState extends State<MenuPage> {
                   ),
 
             const SizedBox(height: 32),
+
+            // Choose Picture Button
             GestureDetector(
               onTap: _processData,
               child: Container(
@@ -384,9 +393,10 @@ class _MenuPageState extends State<MenuPage> {
             ),
 
             const SizedBox(height: 32),
+
             Text("ADVICE",
                 style: TextStyle(
-                    color: Colors.white.withOpacity(0.4),
+                    color: theme.textSecondary,
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 1.8)),
@@ -404,11 +414,11 @@ class _MenuPageState extends State<MenuPage> {
                   Icon(Icons.tips_and_updates_rounded,
                       color: Colors.orange.withOpacity(0.8), size: 26),
                   const SizedBox(width: 14),
-                  const Expanded(
+                  Expanded(
                     child: Text(
                       "You Should Eat more Vegetable and Fruit",
                       style: TextStyle(
-                          color: Colors.white,
+                          color: theme.textPrimary,
                           fontSize: 16,
                           fontWeight: FontWeight.w500),
                     ),
@@ -432,9 +442,7 @@ class _MenuPageState extends State<MenuPage> {
         const SizedBox(width: 6),
         Text(label,
             style: TextStyle(
-                color: color,
-                fontSize: 15,
-                fontWeight: FontWeight.w600)),
+                color: color, fontSize: 15, fontWeight: FontWeight.w600)),
       ],
     );
   }

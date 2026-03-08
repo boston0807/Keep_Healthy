@@ -10,6 +10,7 @@ import '../pages/camera_page.dart';
 import '../pages/dashboard_page.dart';
 import '../models/user.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
+import '../services/notification_service.dart';
 class MainScreen extends StatefulWidget {
   final String nutrientImage;
   final int initializeIndex;
@@ -24,10 +25,14 @@ class _MainScreenState extends State<MainScreen> {
   late int indexBottomNav ;
   late String nutrientImagePath;
   late List widgetOption ;
+  // final NotificationService _notificationService = NotificationService();
 
   @override
   void initState() {
     super.initState();
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   _notificationService.requestNotificationPermission();
+    // });
     indexBottomNav = widget.initializeIndex;
     nutrientImagePath = widget.nutrientImage;
 

@@ -9,6 +9,8 @@ import 'pages/dashboard_page.dart';
 import 'pages/about_page.dart';
 import 'screens/main_screen.dart';
 import 'pages/food_detail_page.dart';
+import 'models/food_nutrient.dart';
+import 'pages/account_page.dart';
 
   void main() async{
     WidgetsFlutterBinding.ensureInitialized();
@@ -44,14 +46,18 @@ import 'pages/food_detail_page.dart';
 
           return MenuPage(user: args?['user']);
         },
-        '/food-detail-page':(context) {
+        '/food-detail-page': (context) {
           final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
 
-          return FoodDetailPage(
-            foodName: args?['foodName'] ?? "",
-            imageUrl: args?['imageUrl'] ?? "",
-            point: args?['point'] ?? 0.0,
-          );
+            return FoodDetailPage(
+              foodName: args?['foodName'] ?? "",
+              food: args?['food'] as FoodNutrient,
+            );
+        },
+        'account-page':(context) {
+          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+
+            return AccountPage(user: args?['user']);
         },
         '/about-page':(context) => AboutPage(),
         '/login-page':(context) => LoginPage(),

@@ -183,8 +183,7 @@ class _DashboardTestState extends State<DashboardTest> {
                         context, '/food-detail-page',
                         arguments: {
                           'foodName': 'Food ${index + 1}',
-                          'imageUrl': food.imageUrl,
-                          'point': food.point,
+                          'food': food,
                         }),
                     child: Container(
                       decoration: BoxDecoration(

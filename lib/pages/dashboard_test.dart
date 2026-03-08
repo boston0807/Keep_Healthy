@@ -53,7 +53,7 @@ Widget build(BuildContext context) {
 
             return Column(
               children: [
-                Image.network(food!.imageUrl, width: 200),
+                Image.network(food.imageUrl, width: 200),
                 const SizedBox(height: 10),
                 Text(food.point.toStringAsFixed(1)),
                 const SizedBox(height: 30),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:fl_chart/fl_chart.dart';
+import 'package:keep_healthy/first_time_exception.dart';
 import '../models/user.dart';
 import '../models/food_nutrient.dart';
 import 'package:image_picker/image_picker.dart';
@@ -18,8 +19,6 @@ class MenuPage extends StatefulWidget {
 class _MenuPageState extends State<MenuPage> {
   List<FoodNutrient> foodList = [];
   bool isLoading = true;
-  late final FoodNutrient? last ;
-
   static const _purple = Color(0xFF6C63FF);
   static const _teal = Color(0xFF00D4AA);
   static const _pink = Color(0xFFFF7B9C);
@@ -60,15 +59,6 @@ class _MenuPageState extends State<MenuPage> {
       if (!mounted) return;
       setState(() => isLoading = false);
     }
-  }
-
-  FoodNutrient? get lastMeal {
-    if (foodList.isEmpty) return null;
-
-    final sorted = List<FoodNutrient>.from(foodList)
-      ..sort((a, b) => a.date!.compareTo(b.date!));
-
-    return sorted.last;
   }
 
   List<FlSpot> get _spots {
@@ -112,12 +102,15 @@ class _MenuPageState extends State<MenuPage> {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().current;
-    if (widget.user == null) {
-      return const Scaffold(
+    if (widget.user == null || isLoading) {
+      return Scaffold(
         body: Center(child: CircularProgressIndicator()),
+        backgroundColor: theme.bg,
     );
   }
-    final last = lastMeal;
+
+
+    final last = foodList.isNotEmpty ? foodList.last : null;
     final spots = _spots;
 
     return Scaffold(
@@ -315,7 +308,6 @@ class _MenuPageState extends State<MenuPage> {
 
             const SizedBox(height: 24),
 
-            // Last Meal
             Text("LAST MEAL",
                 style: TextStyle(
                     color: theme.textSecondary,
@@ -323,94 +315,7 @@ class _MenuPageState extends State<MenuPage> {
                     fontWeight: FontWeight.w700,
                     letterSpacing: 1.8)),
             const SizedBox(height: 12),
-
-            last == null
-                ? Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: theme.card,
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(
-                          color: theme.textSecondary.withOpacity(0.15)),
-                    ),
-                    child: Center(
-                      child: Text("No meal recorded",
-                          style: TextStyle(
-                              color: theme.textSecondary, fontSize: 15)),
-                    ),
-                  )
-                : Container(
-                    decoration: BoxDecoration(
-                      color: theme.card,
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(
-                          color: theme.textSecondary.withOpacity(0.15)),
-                      boxShadow: [
-                        BoxShadow(
-                          color: _teal.withOpacity(0.08),
-                          blurRadius: 18,
-                          offset: const Offset(0, 6),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        ClipRRect(
-                          borderRadius: const BorderRadius.horizontal(
-                              left: Radius.circular(24)),
-                          child: Image.network(
-                            last.imageUrl,
-                            width: 130,
-                            height: 130,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => Container(
-                              width: 130,
-                              height: 130,
-                              color: theme.textSecondary.withOpacity(0.08),
-                              child: Icon(Icons.broken_image_rounded,
-                                  color: theme.textSecondary, size: 32),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 18),
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "${last.date!.day}/${last.date!.month}/${last.date!.year}",
-                                  style: TextStyle(
-                                      color: theme.textSecondary,
-                                      fontSize: 12),
-                                ),
-                                const SizedBox(height: 10),
-                                Row(
-                                  children: [
-                                    _nutrientChip(Icons.egg_rounded,
-                                        "${last.protein.toStringAsFixed(1)}g",
-                                        _purple),
-                                    const SizedBox(width: 10),
-                                    _nutrientChip(Icons.water_drop_rounded,
-                                        "${last.fat.toStringAsFixed(1)}g",
-                                        _pink),
-                                  ],
-                                ),
-                                const SizedBox(height: 10),
-                                _nutrientChip(
-                                    Icons.local_fire_department_rounded,
-                                    "${last.calories.toStringAsFixed(0)} kcal",
-                                    Colors.orange),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 14),
-                      ],
-                    ),
-                  ),
-
+            lastMealBuilder(),
             const SizedBox(height: 32),
 
             // Choose Picture Button
@@ -546,7 +451,7 @@ class _MenuPageState extends State<MenuPage> {
                 style: TextStyle(
                   fontSize: 15,
                   height: 1.4,
-                  color: theme.textSecondary,
+                  color: theme.textPrimary,
                 ),
               ),
             ),
@@ -555,5 +460,107 @@ class _MenuPageState extends State<MenuPage> {
       );
     }).toList(),
   );
+  }
+
+  Widget lastMealBuilder() {
+    final theme = context.watch<ThemeProvider>().current;
+
+    if (foodList.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: theme.card,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: theme.textSecondary.withOpacity(0.15)),
+        ),
+        child: Center(
+          child: Text(
+            "No meal recorded. Try your first scan!",
+            style: TextStyle(color: theme.textSecondary, fontSize: 15),
+          ),
+        ),
+      );
+    }
+
+    final last = foodList.last;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.card,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: theme.textSecondary.withOpacity(0.15)),
+      ),
+      child: Container(
+              decoration: BoxDecoration(
+                color: theme.card,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                    color: theme.textSecondary.withOpacity(0.15)),
+                boxShadow: [
+                  BoxShadow(
+                    color: _teal.withOpacity(0.08),
+                    blurRadius: 18,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: const BorderRadius.horizontal(
+                        left: Radius.circular(24)),
+                    child: Image.network(
+                      last.imageUrl,
+                      width: 130,
+                      height: 130,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Container(
+                        width: 130,
+                        height: 130,
+                        color: theme.textSecondary.withOpacity(0.08),
+                        child: Icon(Icons.broken_image_rounded,
+                            color: theme.textSecondary, size: 32),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 18),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "${last.date!.day}/${last.date!.month}/${last.date!.year}",
+                            style: TextStyle(
+                                color: theme.textSecondary,
+                                fontSize: 12),
+                          ),
+                          const SizedBox(height: 10),
+                          Row(
+                            children: [
+                              _nutrientChip(Icons.egg_rounded,
+                                  "${last.protein.toStringAsFixed(1)}g",
+                                  _purple),
+                              const SizedBox(width: 10),
+                              _nutrientChip(Icons.water_drop_rounded,
+                                  "${last.fat.toStringAsFixed(1)}g",
+                                  _pink),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          _nutrientChip(
+                              Icons.local_fire_department_rounded,
+                              "${last.calories.toStringAsFixed(0)} kcal",
+                              Colors.orange),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                ],
+              ),
+            ),
+    );
   }
 }

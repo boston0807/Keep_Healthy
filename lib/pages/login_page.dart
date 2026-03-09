@@ -54,7 +54,7 @@ class _LoginPageState extends State<LoginPage> {
                 style: TextStyle(color: Colors.black),
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
-                  hintText: "Username",
+                  hintText: "Email",
                 ),
               ),
             ),

@@ -1,3 +1,4 @@
+import 'package:keep_healthy/first_time_exception.dart';
 import 'package:keep_healthy/pages/graph_page.dart';
 import '../models/food_nutrient.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,7 @@ class DashboardTest extends StatefulWidget {
 }
 
 class _DashboardTestState extends State<DashboardTest> {
+  bool isFirstTime = false;
   late List<FoodNutrient> foodList;
   bool isLoading = true;
 
@@ -54,6 +56,15 @@ class _DashboardTestState extends State<DashboardTest> {
         body: const Center(child: CircularProgressIndicator(color: _purple)),
       );
     }
+  
+    if (isFirstTime){
+      return Scaffold(
+        backgroundColor: theme.bg,
+        body: Center(
+          child: Text("This is your first time off Kepp Healthy\n Try our feature by choose picture or camera mode ", style: TextStyle(color: theme.textPrimary, fontWeight: FontWeight.w500, fontSize: 16,),textAlign: TextAlign.center,),
+        ),
+      );
+    }
 
     if (foodList.isEmpty) {
       return Scaffold(
@@ -77,7 +88,6 @@ class _DashboardTestState extends State<DashboardTest> {
 
     final grouped = _grouped;
     final keys = grouped.keys.toList();
-
     return Scaffold(
       backgroundColor: theme.bg,
       appBar: AppBar(
@@ -278,8 +288,12 @@ class _DashboardTestState extends State<DashboardTest> {
           uID, widget.user.usageCount);
       if (!mounted) return;
       setState(() => isLoading = false);
-    } catch (e) {
-      print("fetch list error $e");
+    } on FirstTimeException {
+      setState(() {
+        isLoading = false;
+        isFirstTime = true;
+      }); 
+      print("fetch list error Exception: This is your first time try use our Keep Healthy");
     }
   }
 }

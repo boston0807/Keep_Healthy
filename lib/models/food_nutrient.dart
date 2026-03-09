@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:keep_healthy/first_time_exception.dart';
 import '../services/database_service.dart';
 
 class FoodNutrient {
@@ -53,7 +54,7 @@ class FoodNutrient {
   static Future<List<FoodNutrient>> createFoodNutrientList(String uID, int usage) async {
     if (usage == 0){ 
       print("Fetch List of FoodNutrinet failed");
-      throw Exception("This is your first time try use our Keep Healthy");
+      throw FirstTimeException("This is your first time try use our Keep Healthy");
     }
     DatabaseService databaseService = DatabaseService();
     List<FoodNutrient> list = [];

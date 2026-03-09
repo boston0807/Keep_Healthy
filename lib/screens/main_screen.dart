@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:keep_healthy/pages/dashboard_test.dart';
 import 'package:keep_healthy/pages/profile_page.dart';
 import 'package:keep_healthy/pages/setting_page.dart';
+import 'package:keep_healthy/providers/theme_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:keep_healthy/pages/user_profile_edit.dart';
 import '../pages/menu_page.dart';
 import '../pages/dashboard_page.dart';
@@ -53,10 +55,11 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<ThemeProvider>().current;
     return Scaffold(
       body: (userAcc == null) ? 
-      const Center(
-        child: CircularProgressIndicator()
+       Center(
+        child: CircularProgressIndicator(),
         )
       :
       Center(
@@ -85,7 +88,8 @@ class _MainScreenState extends State<MainScreen> {
       backgroundColor: const Color(0xFF10297B),
       selectedItemColor: Colors.white,
       unselectedItemColor: Colors.white70,
-      )
+      ),
+      backgroundColor: theme.bg,
     ); 
   }
 

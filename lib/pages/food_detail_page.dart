@@ -2,12 +2,10 @@ import "package:flutter/material.dart";
 import '../models/food_nutrient.dart';
 
 class FoodDetailPage extends StatelessWidget {
-  final String foodName;
   final FoodNutrient food;
 
   const FoodDetailPage({
     super.key,
-    required this.foodName,
     required this.food,
   });
 
@@ -40,7 +38,6 @@ class FoodDetailPage extends StatelessWidget {
       backgroundColor: _bg,
       body: CustomScrollView(
         slivers: [
-          // Back Button
           SliverAppBar(
             expandedHeight: 300,
             pinned: true,
@@ -60,7 +57,6 @@ class FoodDetailPage extends StatelessWidget {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  // Food image
                   food.imageUrl.isNotEmpty
                       ? Image.network(
                           food.imageUrl,
@@ -83,8 +79,6 @@ class FoodDetailPage extends StatelessWidget {
                       ),
                     ),
                   ),
-
-                  // Food index and date
                   Positioned(
                     left: 20,
                     right: 20,
@@ -93,7 +87,7 @@ class FoodDetailPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          foodName,
+                          food.menuName,
                           style: const TextStyle(
                             color: _textPrimary,
                             fontSize: 26,
@@ -125,24 +119,18 @@ class FoodDetailPage extends StatelessWidget {
               ),
             ),
           ),
-
-          // Body content
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Health Score Card
                   _ScoreCard(
                     point: food.point,
                     pointColor: pointColor,
                     pointLabel: pointLabel,
                   ),
-
                   const SizedBox(height: 24),
-
-                  // Section title
                   const Text(
                     "NUTRITION FACTS",
                     style: TextStyle(
@@ -153,13 +141,8 @@ class FoodDetailPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 12),
-
-                  // Calorie highlight row
                   _CalorieRow(calories: food.calories),
-
                   const SizedBox(height: 12),
-
-                  // Nutrient grid View
                   GridView.count(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
@@ -198,10 +181,7 @@ class FoodDetailPage extends StatelessWidget {
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 12),
-
-                  // Sodium Row
                   _SodiumRow(sodium: food.sodium),
                 ],
               ),
@@ -230,8 +210,6 @@ class FoodDetailPage extends StatelessWidget {
   }
 }
 
-// Health Score Card
-
 class _ScoreCard extends StatelessWidget {
   final double point;
   final Color pointColor;
@@ -258,7 +236,6 @@ class _ScoreCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // Circular score indicator
           SizedBox(
             width: 72,
             height: 72,
@@ -283,10 +260,7 @@ class _ScoreCard extends StatelessWidget {
               ],
             ),
           ),
-
           const SizedBox(width: 20),
-
-          // Label section
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -328,11 +302,8 @@ class _ScoreCard extends StatelessWidget {
   }
 }
 
-// Calorie highlight row
-
 class _CalorieRow extends StatelessWidget {
   final double calories;
-
   static const _card = Color(0xFF1A1F35);
   static const _accent = Color(0xFF4F8EF7);
   static const _textPrimary = Color(0xFFEEF0F8);
@@ -397,8 +368,6 @@ class _CalorieRow extends StatelessWidget {
     );
   }
 }
-
-// Nutrient tile card
 
 class _NutrientTile extends StatelessWidget {
   final String label;
@@ -475,8 +444,6 @@ class _NutrientTile extends StatelessWidget {
     );
   }
 }
-
-// Sodium row 
 
 class _SodiumRow extends StatelessWidget {
   final double sodium;

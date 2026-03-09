@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:keep_healthy/models/user.dart';
 import '../models/food_nutrient.dart';
 
 class DatabaseService {
@@ -34,6 +33,7 @@ class DatabaseService {
       'sugar': foodNutriet.sugar,
       'Date': DateTime.now(),
       'image_url': foodNutriet.imageUrl,
+      'name': foodNutriet.menuName,
     });
   }
 

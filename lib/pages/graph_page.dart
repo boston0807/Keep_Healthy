@@ -38,24 +38,32 @@ class _GraphPageState extends State<GraphPage> {
       case ViewMode.daily:
         return sorted.map((f) {
           final d = f.date!;
-          return _DataPoint("${d.day}/${d.month}", f.point);
+          return _DataPoint("${d.hour}:${d.minute}", f.point);
         }).toList();
 
       case ViewMode.weekly:
-        final Map<int, List<double>> groups = {};
-        final Map<int, String> labels = {};
+        final now = DateTime.now();
+        final start = now.subtract(const Duration(days: 6));
+
+        final Map<String, List<double>> groups = {};
+
         for (final f in sorted) {
           final d = f.date!;
-          final weekKey = _isoWeekKey(d);
-          groups.putIfAbsent(weekKey, () => []);
-          groups[weekKey]!.add(f.point);
-          labels.putIfAbsent(weekKey,
-              () => "W${_isoWeek(d)}\n${d.month}/${d.year.toString().substring(2)}");
+          
+          if (d.isAfter(start.subtract(const Duration(days: 1))) &&
+              d.isBefore(now.add(const Duration(days: 1)))) {
+
+            final key = "${d.day}/${d.month}";
+            groups.putIfAbsent(key, () => []);
+            groups[key]!.add(f.point);
+          }
         }
-        final keys = groups.keys.toList()..sort();
+
+        final keys = groups.keys.toList();
+
         return keys.map((k) {
           final avg = groups[k]!.reduce((a, b) => a + b) / groups[k]!.length;
-          return _DataPoint(labels[k]!, avg);
+          return _DataPoint(k, avg);
         }).toList();
 
       case ViewMode.monthly:

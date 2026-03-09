@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import '../models/user.dart';
-import '../services/database_service.dart';
 
 class AboutPage extends StatefulWidget {
   const AboutPage({super.key});

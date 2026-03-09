@@ -6,7 +6,7 @@ import '../models/food_nutrient.dart';
 import 'package:image_picker/image_picker.dart';
 
 class MenuPage extends StatefulWidget {
-  final User user;
+  final User? user;
   const MenuPage({super.key, required this.user});
 
   @override
@@ -26,13 +26,23 @@ class _MenuPageState extends State<MenuPage> {
   @override
   void initState() {
     super.initState();
+    if (widget.user == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          "/login-page",
+          (_) => false,
+        );
+      });
+      return;
+    }
     _fetchFoodList();
   }
 
   Future<void> _fetchFoodList() async {
     try {
       final uID = auth.FirebaseAuth.instance.currentUser!.uid;
-      final list = await FoodNutrient.createFoodNutrientList(uID, widget.user.usageCount);
+      final list = await FoodNutrient.createFoodNutrientList(uID, widget.user!.usageCount);
       if (!mounted) return;
       setState(() {
         foodList = list;
@@ -49,16 +59,59 @@ class _MenuPageState extends State<MenuPage> {
       ..sort((a, b) => a.date!.compareTo(b.date!));
   }
 
-  List<FlSpot> get _spots => _sortedList.asMap().entries.map((e) => FlSpot(e.key.toDouble(), e.value.point)).toList();
+  List<FlSpot> get _spots {
+    List<FoodNutrient> sorted = List.from(foodList);
+    sorted.sort((a, b) => a.date!.compareTo(b.date!));
+    DateTime now = DateTime.now();
+    DateTime start = now.subtract(const Duration(days: 6));
+    Map<String, List<double>> groups = {};
+    int i = 0;
+    while (i < sorted.length) {
+      FoodNutrient f = sorted[i];
+      DateTime d = f.date!;
+      if (d.isAfter(start.subtract(const Duration(days: 1))) &&
+          d.isBefore(now.add(const Duration(days: 1)))) {
+        String key = "${d.day}/${d.month}";
+        if (!groups.containsKey(key)) {
+          groups[key] = [];
+        }
+        groups[key]!.add(f.point);
+      }
+      i++;
+    }
+    List<String> keys = groups.keys.toList();
+    keys.sort();
+    List<FlSpot> spots = [];
+    int j = 0;
+    while (j < keys.length) {
+      String k = keys[j];
+      List<double> values = groups[k]!;
+      double sum = 0;
+      int p = 0;
+      while (p < values.length) {
+        sum = sum + values[p];
+        p++;
+      }
+      double avg = sum / values.length;
+      spots.add(FlSpot(j.toDouble(), avg));
+      j++;
+    }
+    return spots;
+  }
 
   FoodNutrient? get _lastMeal =>
       foodList.isEmpty ? null : _sortedList.last;
 
   @override
   Widget build(BuildContext context) {
+    if (widget.user == null) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+    );
+  }
+  
     final last = _lastMeal;
     final spots = _spots;
-
     return Scaffold(
       backgroundColor: _bg,
       appBar: AppBar(
@@ -68,13 +121,13 @@ class _MenuPageState extends State<MenuPage> {
           padding: const EdgeInsets.all(8),
           child: CircleAvatar(
             radius: 22,
-            backgroundImage: widget.user.imageUrl == null
-                ? const AssetImage("assets/images/default_user.jpg")
-                : NetworkImage(widget.user.imageUrl!) as ImageProvider,
+          backgroundImage: widget.user?.imageUrl == null
+              ? const AssetImage("assets/images/default_user.jpg")
+              : NetworkImage(widget.user!.imageUrl!) as ImageProvider,
           ),
         ),
         title: Text(
-          'Hello, ${widget.user.name}',
+          'Hello, ${widget.user!.name}',
           style: const TextStyle(
               color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22),
         ),
@@ -113,7 +166,7 @@ class _MenuPageState extends State<MenuPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "${widget.user.username}'s Progress",
+                        "${widget.user!.username}'s Progress",
                         style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -127,7 +180,7 @@ class _MenuPageState extends State<MenuPage> {
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(color: _purple.withOpacity(0.3)),
                         ),
-                        child: const Text("Daily",
+                        child: const Text("Weekly Mini Graph",
                             style: TextStyle(
                                 color: _purple,
                                 fontSize: 13,
@@ -404,13 +457,27 @@ class _MenuPageState extends State<MenuPage> {
                   Icon(Icons.tips_and_updates_rounded,
                       color: Colors.orange.withOpacity(0.8), size: 26),
                   const SizedBox(width: 14),
-                  const Expanded(
-                    child: Text(
-                      "You Should Eat more Vegetable and Fruit",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: _lastMeal!.advice.length,
+                          itemBuilder: (context, index) {
+                            _lastMeal!.getAdvice(widget.user!.weight);
+                            return Row(
+                              children: [
+                                    Text("•"),
+                                    SizedBox(width: 10,),
+                                    Expanded(
+                                      child: Text(_lastMeal!.advice[index])),
+                              ],
+                            );
+                          },
+                        )
+                      ],
                     ),
                   ),
                 ],

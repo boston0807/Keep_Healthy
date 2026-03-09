@@ -3,6 +3,9 @@ import '../models/food_nutrient.dart';
 import 'package:flutter/material.dart';
 import '../models/user.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
+import '../providers/theme_provider.dart';
+import 'package:provider/provider.dart';
+import '../config/theme_config.dart';
 
 class DashboardTest extends StatefulWidget {
   final User user;
@@ -16,8 +19,6 @@ class _DashboardTestState extends State<DashboardTest> {
   late List<FoodNutrient> foodList;
   bool isLoading = true;
 
-  static const _bg = Color(0xFF0F1117);
-  static const _card = Color(0xFF1A1F35);
   static const _purple = Color(0xFF6C63FF);
   static const _teal = Color(0xFF00D4AA);
 
@@ -45,16 +46,18 @@ class _DashboardTestState extends State<DashboardTest> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<ThemeProvider>().current;
+
     if (isLoading) {
-      return const Scaffold(
-        backgroundColor: _bg,
-        body: Center(child: CircularProgressIndicator(color: _purple)),
+      return Scaffold(
+        backgroundColor: theme.bg,
+        body: const Center(child: CircularProgressIndicator(color: _purple)),
       );
     }
 
     if (foodList.isEmpty) {
       return Scaffold(
-        backgroundColor: _bg,
+        backgroundColor: theme.bg,
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -76,13 +79,13 @@ class _DashboardTestState extends State<DashboardTest> {
     final keys = grouped.keys.toList();
 
     return Scaffold(
-      backgroundColor: _bg,
+      backgroundColor: theme.bg,
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 37, 42, 58),
+        backgroundColor: theme.bg,
         elevation: 0,
-        title: const Text("Dashboard",
+        title: Text("Dashboard",
             style: TextStyle(
-                color: Colors.white,
+                color: theme.textPrimary,
                 fontSize: 22,
                 fontWeight: FontWeight.bold)),
         centerTitle: true,
@@ -144,8 +147,8 @@ class _DashboardTestState extends State<DashboardTest> {
                     const SizedBox(width: 8),
                     Text(
                       monthKey,
-                      style: const TextStyle(
-                          color: Colors.white,
+                      style: TextStyle(
+                          color: theme.textPrimary,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 0.5),
@@ -153,7 +156,7 @@ class _DashboardTestState extends State<DashboardTest> {
                     const SizedBox(width: 8),
                     Text("${items.length} items",
                         style: TextStyle(
-                            color: Colors.white.withOpacity(0.35),
+                            color: theme.textPrimary.withOpacity(0.35),
                             fontSize: 12)),
                   ],
                 ),
@@ -182,12 +185,12 @@ class _DashboardTestState extends State<DashboardTest> {
                     onTap: () => Navigator.pushNamed(
                         context, '/food-detail-page',
                         arguments: {
-                          'foodName': 'Food ${index + 1}',
                           'food': food,
+                          'weight': widget.user.weight,
                         }),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: _card,
+                        color: theme.card,
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
                             color: Colors.white.withOpacity(0.07)),
@@ -229,8 +232,8 @@ class _DashboardTestState extends State<DashboardTest> {
                                   children: [
                                     Text("Health Score",
                                         style: TextStyle(
-                                            color: Colors.white
-                                                .withOpacity(0.45),
+                                            color: theme.textPrimary
+                                                .withOpacity(0.7),
                                             fontSize: 10,
                                             fontWeight: FontWeight.w500)),
                                     Text(score.toStringAsFixed(1),
@@ -246,7 +249,7 @@ class _DashboardTestState extends State<DashboardTest> {
                                   child: LinearProgressIndicator(
                                     value: score / 100,
                                     backgroundColor:
-                                        Colors.white.withOpacity(0.08),
+                                        theme.textSecondary.withOpacity(0.08),
                                     valueColor:
                                         AlwaysStoppedAnimation<Color>(color),
                                     minHeight: 4,

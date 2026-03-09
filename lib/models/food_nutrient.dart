@@ -141,8 +141,6 @@ class FoodNutrient {
 
   if (proteinRatio < 0.2) {
     advice.add("โปรตีนน้อย ควรเพิ่มแหล่งโปรตีน");
-  } else{
-    advice.add("");
   }
 
   if (advice.isEmpty) {
@@ -154,7 +152,6 @@ class FoodNutrient {
   } else {
     advice.add("ปริมาณคาร์โบไฮเดรตกำลังเหมาะสม");
   } 
-
   return advice;
   }
 }

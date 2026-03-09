@@ -58,6 +58,7 @@ import 'providers/theme_provider.dart';
 
             return FoodDetailPage(
               food: args?['food'] as FoodNutrient,
+              weight: args?['weight'],
             );
         },
         'account-page':(context) {

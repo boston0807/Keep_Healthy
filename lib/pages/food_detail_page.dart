@@ -1,21 +1,22 @@
 import "package:flutter/material.dart";
 import '../models/food_nutrient.dart';
+import '../config/theme_config.dart';
+import 'package:provider/provider.dart';
+import '../providers/theme_provider.dart';
 
 class FoodDetailPage extends StatelessWidget {
   final FoodNutrient food;
+  final double weight;
 
   const FoodDetailPage({
     super.key,
     required this.food,
+    required this.weight,
   });
 
-  static const _bg = Color(0xFF0F1117);
-  static const _card = Color(0xFF1A1F35);
   static const _accentGreen = Color(0xFF3ECFA3);
   static const _accentRed = Color(0xFFFF5C6A);
   static const _accentYellow = Color(0xFFFFD166);
-  static const _textPrimary = Color(0xFFEEF0F8);
-  static const _textSecondary = Color(0xFF7B82A3);
 
   Color _pointColor(double point) {
     if (point >= 70) return _accentGreen;
@@ -34,21 +35,23 @@ class FoodDetailPage extends StatelessWidget {
     final pointColor = _pointColor(food.point);
     final pointLabel = _pointLabel(food.point);
 
+    final theme = context.watch<ThemeProvider>().current;
+
     return Scaffold(
-      backgroundColor: _bg,
+      backgroundColor: theme.bg,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
             expandedHeight: 300,
             pinned: true,
-            backgroundColor: _bg,
+            backgroundColor: theme.bg,
             leading: Padding(
               padding: const EdgeInsets.all(8),
               child: CircleAvatar(
-                backgroundColor: _card.withOpacity(0.85),
+                backgroundColor: theme.card.withOpacity(0.85),
                 child: IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                      color: _textPrimary, size: 18),
+                  icon: Icon(Icons.arrow_back_ios_new_rounded,
+                      color: theme.textPrimary, size: 18),
                   onPressed: () => Navigator.pop(context),
                 ),
               ),
@@ -62,9 +65,9 @@ class FoodDetailPage extends StatelessWidget {
                           food.imageUrl,
                           fit: BoxFit.cover,
                           errorBuilder: (_, __, ___) =>
-                              _placeholderImage(),
+                              _placeholderImage(theme),
                         )
-                      : _placeholderImage(),
+                      : _placeholderImage(theme),
 
                   const DecoratedBox(
                     decoration: BoxDecoration(
@@ -88,8 +91,8 @@ class FoodDetailPage extends StatelessWidget {
                       children: [
                         Text(
                           food.menuName,
-                          style: const TextStyle(
-                            color: _textPrimary,
+                          style: TextStyle(
+                            color: theme.textPrimary,
                             fontSize: 26,
                             fontWeight: FontWeight.w700,
                             letterSpacing: 0.4,
@@ -99,13 +102,13 @@ class FoodDetailPage extends StatelessWidget {
                           const SizedBox(height: 4),
                           Row(
                             children: [
-                              const Icon(Icons.calendar_today_rounded,
-                                  size: 13, color: _textSecondary),
+                              Icon(Icons.calendar_today_rounded,
+                                  size: 13, color: theme.textSecondary),
                               const SizedBox(width: 5),
                               Text(
                                 _formatDate(food.date!),
-                                style: const TextStyle(
-                                  color: _textSecondary,
+                                style: TextStyle(
+                                  color: theme.textSecondary,
                                   fontSize: 13,
                                 ),
                               ),
@@ -131,10 +134,10 @@ class FoodDetailPage extends StatelessWidget {
                     pointLabel: pointLabel,
                   ),
                   const SizedBox(height: 24),
-                  const Text(
+                  Text(
                     "NUTRITION FACTS",
                     style: TextStyle(
-                      color: _textSecondary,
+                      color: theme.textSecondary,
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 2,
@@ -183,6 +186,8 @@ class FoodDetailPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   _SodiumRow(sodium: food.sodium),
+                  const SizedBox(height: 24),
+                  AdviceSection(advice: food.getAdvice(weight),),
                 ],
               ),
             ),
@@ -192,11 +197,11 @@ class FoodDetailPage extends StatelessWidget {
     );
   }
 
-  Widget _placeholderImage() {
+  Widget _placeholderImage(dynamic theme) {
     return Container(
-      color: _card,
-      child: const Center(
-        child: Icon(Icons.restaurant_rounded, size: 72, color: _textSecondary),
+      color: theme.card,
+      child: Center(
+        child: Icon(Icons.restaurant_rounded, size: 72, color: theme.textSecondary),
       ),
     );
   }
@@ -215,10 +220,6 @@ class _ScoreCard extends StatelessWidget {
   final Color pointColor;
   final String pointLabel;
 
-  static const _card = Color(0xFF1A1F35);
-  static const _textPrimary = Color(0xFFEEF0F8);
-  static const _textSecondary = Color(0xFF7B82A3);
-
   const _ScoreCard({
     required this.point,
     required this.pointColor,
@@ -227,10 +228,12 @@ class _ScoreCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<ThemeProvider>().current;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
       decoration: BoxDecoration(
-        color: _card,
+        color: theme.card,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: pointColor.withOpacity(0.25), width: 1.5),
       ),
@@ -268,7 +271,7 @@ class _ScoreCard extends StatelessWidget {
                 Text(
                   "Health Score",
                   style: TextStyle(
-                    color: _textSecondary,
+                    color: theme.textSecondary,
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                     letterSpacing: 0.5,
@@ -313,29 +316,31 @@ class _CalorieRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<ThemeProvider>().current;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
       decoration: BoxDecoration(
-        color: _accent.withOpacity(0.1),
+        color: theme.accent.withOpacity(0.1),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: _accent.withOpacity(0.25)),
+        border: Border.all(color: theme.accent.withOpacity(0.25)),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: _accent.withOpacity(0.15),
+              color: theme.accent.withOpacity(0.15),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(Icons.local_fire_department_rounded,
-                color: _accent, size: 22),
+            child: Icon(Icons.local_fire_department_rounded,
+                color: theme.accent, size: 22),
           ),
           const SizedBox(width: 14),
-          const Text(
+          Text(
             "Calories",
             style: TextStyle(
-              color: _textPrimary,
+              color: theme.textPrimary,
               fontSize: 15,
               fontWeight: FontWeight.w600,
             ),
@@ -346,16 +351,16 @@ class _CalorieRow extends StatelessWidget {
               children: [
                 TextSpan(
                   text: calories.toStringAsFixed(0),
-                  style: const TextStyle(
-                    color: _accent,
+                  style: TextStyle(
+                    color: theme.accent,
                     fontSize: 22,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                const TextSpan(
+                TextSpan(
                   text: " kcal",
                   style: TextStyle(
-                    color: _textSecondary,
+                    color: theme.textSecondary,
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
                   ),
@@ -376,9 +381,6 @@ class _NutrientTile extends StatelessWidget {
   final IconData icon;
   final Color color;
 
-  static const _card = Color(0xFF1A1F35);
-  static const _textPrimary = Color(0xFFEEF0F8);
-  static const _textSecondary = Color(0xFF7B82A3);
 
   const _NutrientTile({
     required this.label,
@@ -390,12 +392,14 @@ class _NutrientTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<ThemeProvider>().current;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: _card,
+        color: theme.card,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.18)),
+        border: Border.all(color: color.withOpacity(0.13)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -407,8 +411,8 @@ class _NutrientTile extends StatelessWidget {
               const SizedBox(width: 6),
               Text(
                 label,
-                style: const TextStyle(
-                  color: _textSecondary,
+                style: TextStyle(
+                  color: theme.textSecondary,
                   fontSize: 11,
                   fontWeight: FontWeight.w500,
                 ),
@@ -431,8 +435,8 @@ class _NutrientTile extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 2),
                 child: Text(
                   unit,
-                  style: const TextStyle(
-                    color: _textSecondary,
+                  style: TextStyle(
+                    color: theme.textSecondary,
                     fontSize: 12,
                   ),
                 ),
@@ -448,9 +452,6 @@ class _NutrientTile extends StatelessWidget {
 class _SodiumRow extends StatelessWidget {
   final double sodium;
 
-  static const _card = Color(0xFF1A1F35);
-  static const _textPrimary = Color(0xFFEEF0F8);
-  static const _textSecondary = Color(0xFF7B82A3);
   static const _sodiumColor = Color(0xFFFFB347);
   static const double _maxSodium = 2000;
 
@@ -458,12 +459,14 @@ class _SodiumRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<ThemeProvider>().current;
+
     final ratio = (sodium / _maxSodium).clamp(0.0, 1.0);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
       decoration: BoxDecoration(
-        color: _card,
+        color: theme.card,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: _sodiumColor.withOpacity(0.18)),
       ),
@@ -474,10 +477,10 @@ class _SodiumRow extends StatelessWidget {
             children: [
               const Icon(Icons.science_rounded, color: _sodiumColor, size: 16),
               const SizedBox(width: 6),
-              const Text(
+              Text(
                 "Sodium",
                 style: TextStyle(
-                  color: _textSecondary,
+                  color: theme.textSecondary,
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
                 ),
@@ -494,10 +497,10 @@ class _SodiumRow extends StatelessWidget {
                         fontWeight: FontWeight.w800,
                       ),
                     ),
-                    const TextSpan(
+                    TextSpan(
                       text: " / 2000 mg",
                       style: TextStyle(
-                        color: _textSecondary,
+                        color: theme.textSecondary,
                         fontSize: 12,
                       ),
                     ),
@@ -514,6 +517,76 @@ class _SodiumRow extends StatelessWidget {
               minHeight: 7,
               backgroundColor: _sodiumColor.withOpacity(0.12),
               valueColor: AlwaysStoppedAnimation<Color>(_sodiumColor),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class AdviceSection extends StatelessWidget {
+  final List<String> advice;
+
+  const AdviceSection({super.key,required this.advice});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.watch<ThemeProvider>().current;
+
+    if (advice.isEmpty) return const SizedBox();
+
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: theme.card,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: theme.accent.withOpacity(0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.lightbulb_rounded,
+                  color: theme.accent, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                "ADVICE",
+                style: TextStyle(
+                  color: theme.textPrimary,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.2,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          ...advice.map(
+            (text) => Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "• ",
+                    style: TextStyle(
+                      color: theme.textSecondary,
+                      fontSize: 14,
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      text,
+                      style: TextStyle(
+                        color: theme.textSecondary,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],

@@ -4,6 +4,8 @@ import 'package:fl_chart/fl_chart.dart';
 import '../models/user.dart';
 import '../models/food_nutrient.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+import '../providers/theme_provider.dart';
 
 class MenuPage extends StatefulWidget {
   final User? user;
@@ -16,9 +18,8 @@ class MenuPage extends StatefulWidget {
 class _MenuPageState extends State<MenuPage> {
   List<FoodNutrient> foodList = [];
   bool isLoading = true;
+  late final FoodNutrient? last ;
 
-  static const _bg = Color(0xFF0F1117);
-  static const _card = Color(0xFF1A1F35);
   static const _purple = Color(0xFF6C63FF);
   static const _teal = Color(0xFF00D4AA);
   static const _pink = Color(0xFFFF7B9C);
@@ -36,13 +37,20 @@ class _MenuPageState extends State<MenuPage> {
       });
       return;
     }
-    _fetchFoodList();
+    fetchFoodList();
   }
 
-  Future<void> _fetchFoodList() async {
+  Future<void> fetchFoodList() async {
     try {
       final uID = auth.FirebaseAuth.instance.currentUser!.uid;
-      final list = await FoodNutrient.createFoodNutrientList(uID, widget.user!.usageCount);
+      final list = await FoodNutrient.createFoodNutrientList(
+        uID,
+        widget.user!.usageCount,
+      );
+      if (list.isNotEmpty) {
+        list.sort((a, b) => a.date!.compareTo(b.date!));
+        list.last.getAdvice(widget.user!.weight);
+      }
       if (!mounted) return;
       setState(() {
         foodList = list;
@@ -54,20 +62,22 @@ class _MenuPageState extends State<MenuPage> {
     }
   }
 
-  List<FoodNutrient> get _sortedList {
-    return List<FoodNutrient>.from(foodList)
+  FoodNutrient? get lastMeal {
+    if (foodList.isEmpty) return null;
+
+    final sorted = List<FoodNutrient>.from(foodList)
       ..sort((a, b) => a.date!.compareTo(b.date!));
+
+    return sorted.last;
   }
 
   List<FlSpot> get _spots {
-    List<FoodNutrient> sorted = List.from(foodList);
-    sorted.sort((a, b) => a.date!.compareTo(b.date!));
     DateTime now = DateTime.now();
     DateTime start = now.subtract(const Duration(days: 6));
     Map<String, List<double>> groups = {};
     int i = 0;
-    while (i < sorted.length) {
-      FoodNutrient f = sorted[i];
+    while (i < foodList.length) {
+      FoodNutrient f = foodList[i];
       DateTime d = f.date!;
       if (d.isAfter(start.subtract(const Duration(days: 1))) &&
           d.isBefore(now.add(const Duration(days: 1)))) {
@@ -99,23 +109,21 @@ class _MenuPageState extends State<MenuPage> {
     return spots;
   }
 
-  FoodNutrient? get _lastMeal =>
-      foodList.isEmpty ? null : _sortedList.last;
-
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<ThemeProvider>().current;
     if (widget.user == null) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
     );
   }
-  
-    final last = _lastMeal;
+    final last = lastMeal;
     final spots = _spots;
+
     return Scaffold(
-      backgroundColor: _bg,
+      backgroundColor: theme.bg,
       appBar: AppBar(
-        backgroundColor: _bg,
+        backgroundColor: theme.bg,
         elevation: 0,
         leading: Padding(
           padding: const EdgeInsets.all(8),
@@ -128,13 +136,15 @@ class _MenuPageState extends State<MenuPage> {
         ),
         title: Text(
           'Hello, ${widget.user!.name}',
-          style: const TextStyle(
-              color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22),
+          style: TextStyle(
+              color: theme.textPrimary,
+              fontWeight: FontWeight.bold,
+              fontSize: 22),
         ),
         actions: [
           IconButton(
             icon: Icon(Icons.notifications_rounded,
-                color: Colors.white.withOpacity(0.7), size: 26),
+                color: theme.textSecondary, size: 26),
             onPressed: () {},
           ),
         ],
@@ -148,9 +158,9 @@ class _MenuPageState extends State<MenuPage> {
               width: double.infinity,
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: _card,
+                color: theme.card,
                 borderRadius: BorderRadius.circular(28),
-                border: Border.all(color: Colors.white.withOpacity(0.07)),
+                border: Border.all(color: theme.textSecondary.withOpacity(0.15)),
                 boxShadow: [
                   BoxShadow(
                     color: _purple.withOpacity(0.12),
@@ -167,8 +177,8 @@ class _MenuPageState extends State<MenuPage> {
                     children: [
                       Text(
                         "${widget.user!.username}'s Progress",
-                        style: const TextStyle(
-                            color: Colors.white,
+                        style: TextStyle(
+                            color: theme.textPrimary,
                             fontWeight: FontWeight.bold,
                             fontSize: 18),
                       ),
@@ -198,7 +208,7 @@ class _MenuPageState extends State<MenuPage> {
                             ? Center(
                                 child: Text("No data",
                                     style: TextStyle(
-                                        color: Colors.white.withOpacity(0.3),
+                                        color: theme.textSecondary,
                                         fontSize: 15)))
                             : LineChart(
                                 LineChartData(
@@ -243,20 +253,20 @@ class _MenuPageState extends State<MenuPage> {
                                   lineTouchData:
                                       const LineTouchData(enabled: false),
                                   titlesData: FlTitlesData(
-                                      leftTitles: AxisTitles(
-                                        sideTitles: SideTitles(
-                                          showTitles: true,
-                                          reservedSize: 28,
-                                          interval: 25,
-                                          getTitlesWidget: (value, meta) => Text(
-                                            value.toInt().toString(),
-                                            style: TextStyle(
-                                              fontSize: 10,
-                                              color: Colors.white.withOpacity(0.35),
-                                            ),
+                                    leftTitles: AxisTitles(
+                                      sideTitles: SideTitles(
+                                        showTitles: true,
+                                        reservedSize: 28,
+                                        interval: 25,
+                                        getTitlesWidget: (value, meta) => Text(
+                                          value.toInt().toString(),
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            color: theme.textSecondary,
                                           ),
                                         ),
                                       ),
+                                    ),
                                     topTitles: const AxisTitles(
                                         sideTitles:
                                             SideTitles(showTitles: false)),
@@ -270,18 +280,18 @@ class _MenuPageState extends State<MenuPage> {
                                         getTitlesWidget: (value, meta) {
                                           final idx = value.toInt();
                                           if (idx < 0 ||
-                                              idx >= _sortedList.length) {
+                                              idx >= foodList.length) {
                                             return const SizedBox();
                                           }
                                           int interval = 1;
-                                          if (_sortedList.length > 6) {
+                                          if (foodList.length > 6) {
                                             interval =
-                                                (_sortedList.length / 5).ceil();
+                                                (foodList.length / 5).ceil();
                                           }
                                           if (idx % interval != 0) {
                                             return const SizedBox();
                                           }
-                                          final d = _sortedList[idx].date!;
+                                          final d = foodList[idx].date!;
                                           return Padding(
                                             padding:
                                                 const EdgeInsets.only(top: 5),
@@ -289,8 +299,7 @@ class _MenuPageState extends State<MenuPage> {
                                               "${d.day}/${d.month}",
                                               style: TextStyle(
                                                   fontSize: 10,
-                                                  color: Colors.white
-                                                      .withOpacity(0.4)),
+                                                  color: theme.textSecondary),
                                             ),
                                           );
                                         },
@@ -305,9 +314,11 @@ class _MenuPageState extends State<MenuPage> {
             ),
 
             const SizedBox(height: 24),
+
+            // Last Meal
             Text("LAST MEAL",
                 style: TextStyle(
-                    color: Colors.white.withOpacity(0.4),
+                    color: theme.textSecondary,
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 1.8)),
@@ -317,24 +328,23 @@ class _MenuPageState extends State<MenuPage> {
                 ? Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: _card,
+                      color: theme.card,
                       borderRadius: BorderRadius.circular(24),
-                      border:
-                          Border.all(color: Colors.white.withOpacity(0.07)),
+                      border: Border.all(
+                          color: theme.textSecondary.withOpacity(0.15)),
                     ),
                     child: Center(
                       child: Text("No meal recorded",
                           style: TextStyle(
-                              color: Colors.white.withOpacity(0.3),
-                              fontSize: 15)),
+                              color: theme.textSecondary, fontSize: 15)),
                     ),
                   )
                 : Container(
                     decoration: BoxDecoration(
-                      color: _card,
+                      color: theme.card,
                       borderRadius: BorderRadius.circular(24),
-                      border:
-                          Border.all(color: Colors.white.withOpacity(0.07)),
+                      border: Border.all(
+                          color: theme.textSecondary.withOpacity(0.15)),
                       boxShadow: [
                         BoxShadow(
                           color: _teal.withOpacity(0.08),
@@ -356,10 +366,9 @@ class _MenuPageState extends State<MenuPage> {
                             errorBuilder: (_, __, ___) => Container(
                               width: 130,
                               height: 130,
-                              color: Colors.white.withOpacity(0.05),
+                              color: theme.textSecondary.withOpacity(0.08),
                               child: Icon(Icons.broken_image_rounded,
-                                  color: Colors.white.withOpacity(0.2),
-                                  size: 32),
+                                  color: theme.textSecondary, size: 32),
                             ),
                           ),
                         ),
@@ -373,7 +382,7 @@ class _MenuPageState extends State<MenuPage> {
                                 Text(
                                   "${last.date!.day}/${last.date!.month}/${last.date!.year}",
                                   style: TextStyle(
-                                      color: Colors.white.withOpacity(0.4),
+                                      color: theme.textSecondary,
                                       fontSize: 12),
                                 ),
                                 const SizedBox(height: 10),
@@ -403,6 +412,8 @@ class _MenuPageState extends State<MenuPage> {
                   ),
 
             const SizedBox(height: 32),
+
+            // Choose Picture Button
             GestureDetector(
               onTap: _processData,
               child: Container(
@@ -437,9 +448,10 @@ class _MenuPageState extends State<MenuPage> {
             ),
 
             const SizedBox(height: 32),
+
             Text("ADVICE",
                 style: TextStyle(
-                    color: Colors.white.withOpacity(0.4),
+                    color: theme.textSecondary,
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 1.8)),
@@ -453,37 +465,20 @@ class _MenuPageState extends State<MenuPage> {
                 border: Border.all(color: Colors.orange.withOpacity(0.2)),
               ),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.tips_and_updates_rounded,
-                      color: Colors.orange.withOpacity(0.8), size: 26),
-                  const SizedBox(width: 14),
+                  Icon(
+                    Icons.tips_and_updates_rounded,
+                    color: Colors.orange.withOpacity(0.8),
+                    size: 26,
+                  ),
+                  const SizedBox(width: 12),
                   Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        ListView.builder(
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          itemCount: _lastMeal!.advice.length,
-                          itemBuilder: (context, index) {
-                            _lastMeal!.getAdvice(widget.user!.weight);
-                            return Row(
-                              children: [
-                                    Text("•"),
-                                    SizedBox(width: 10,),
-                                    Expanded(
-                                      child: Text(_lastMeal!.advice[index])),
-                              ],
-                            );
-                          },
-                        )
-                      ],
-                    ),
+                    child: _buildAdvice(last),
                   ),
                 ],
               ),
             ),
-
             const SizedBox(height: 32),
           ],
         ),
@@ -499,9 +494,7 @@ class _MenuPageState extends State<MenuPage> {
         const SizedBox(width: 6),
         Text(label,
             style: TextStyle(
-                color: color,
-                fontSize: 15,
-                fontWeight: FontWeight.w600)),
+                color: color, fontSize: 15, fontWeight: FontWeight.w600)),
       ],
     );
   }
@@ -517,5 +510,49 @@ class _MenuPageState extends State<MenuPage> {
           'nutrientImage': pickedFile.path,
           'initializeIndex': 0
         });
+  }
+
+  Widget _buildAdvice(FoodNutrient? last) {
+  if (last == null || last.advice.isEmpty) {
+    return Text(
+      "No advice available",
+      style: TextStyle(
+        fontSize: 15,
+        color: Colors.amber[50],
+      ),
+    );
+  }
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: last.advice.map((advice) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "•",
+              style: TextStyle(
+                fontSize: 18,
+                color: Colors.amber[200],
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                advice,
+                style: TextStyle(
+                  fontSize: 15,
+                  height: 1.4,
+                  color: Colors.amber[50],
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }).toList(),
+  );
   }
 }

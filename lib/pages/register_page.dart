@@ -47,10 +47,10 @@ class _RegisterPageState extends State<RegisterPage> {
           children: [
             Image.asset(
               "assets/images/keep_healthy(nobg).png",
-              width: 225,
+              width: 175,
             ),
 
-            const SizedBox(height: 30),
+            const SizedBox(height: 10),
 
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -158,10 +158,10 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
             ),
 
-            SizedBox(height: 15),
+            SizedBox(height: 20),
 
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 40),
+              padding: const EdgeInsets.symmetric(horizontal: 80),
               child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(

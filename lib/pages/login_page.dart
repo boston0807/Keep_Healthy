@@ -1,5 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/theme_provider.dart';
+import '../config/theme_config.dart';
 
 class LoginPage extends StatefulWidget {
 
@@ -18,6 +21,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context){
+    final theme = context.watch<ThemeProvider>().current;
     return Scaffold(
       backgroundColor: const Color.fromARGB(
         255,
@@ -47,6 +51,7 @@ class _LoginPageState extends State<LoginPage> {
               child: TextField(
                 controller: emailController,
                 textAlign: TextAlign.center,
+                style: TextStyle(color: theme.textPrimary),
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
                   hintText: "Username",
@@ -64,6 +69,7 @@ class _LoginPageState extends State<LoginPage> {
               child: TextField(
                 controller: passwordController,
                 obscureText: true,
+                style: TextStyle(color: theme.textPrimary),
                 textAlign: TextAlign.center,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),

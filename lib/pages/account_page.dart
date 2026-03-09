@@ -38,7 +38,7 @@ class _AccountPageState extends State<AccountPage> {
     bool isLoading = false;
     String? errorMessage;
 
-    final theme = Provider.of<ThemeProvider>(context).current;
+    final theme = context.watch<ThemeProvider>().current;
 
     showDialog(
       context: context,

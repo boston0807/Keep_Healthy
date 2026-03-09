@@ -7,7 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'pages/menu_page.dart';
 import 'pages/dashboard_page.dart';
 import 'pages/about_page.dart';
-import 'screens/main_screen.dart';
+import '../screens/main_screen.dart';
 import 'pages/food_detail_page.dart';
 import 'models/food_nutrient.dart';
 import 'pages/account_page.dart';

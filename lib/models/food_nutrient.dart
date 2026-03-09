@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../providers/database_service.dart';
+import '../services/database_service.dart';
 
 class FoodNutrient {
   final double calories;

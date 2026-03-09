@@ -28,15 +28,16 @@ class _SettingPageState extends State<SettingPage> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = "";
 
-  late final List<Map<String, dynamic>> _settingItems = [
-    {'title': 'Account',        'icon': Icons.person,           'color': Colors.white},
-    {'title': 'Notifications',  'icon': Icons.notifications,    'color': Colors.white},
-    {'title': 'Theme',          'icon': Icons.palette_outlined, 'color': Colors.white}, // ← เพิ่มตรงนี้
-    {'title': 'Help & Support', 'icon': Icons.help,             'color': Colors.white},
+List<Map<String, dynamic>> get _settingItems {
+  final theme = context.read<ThemeProvider>().current;
+  return [
+    {'title': 'Account',        'icon': Icons.person,           'color': theme.textPrimary},
+    {'title': 'Notifications',  'icon': Icons.notifications,    'color': theme.textPrimary},
+    {'title': 'Theme',          'icon': Icons.palette_outlined, 'color': theme.textPrimary},
+    {'title': 'Help & Support', 'icon': Icons.help,             'color': theme.textPrimary},
     {'title': 'Logout',         'icon': Icons.logout,           'color': Colors.red},
   ];
-
-  static const _bg = Color(0xFF0F1117);
+}
 
   late CloudinaryService cloudinary;
   DatabaseService dataBase = DatabaseService();
@@ -65,11 +66,13 @@ class _SettingPageState extends State<SettingPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<ThemeProvider>().current;
+
     return Scaffold(
-      backgroundColor: _bg,
+      backgroundColor: theme.bg,
       appBar: AppBar(
-      backgroundColor: _bg,
-        title: const Text("Setting", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),),
+      backgroundColor: theme.bg,
+        title: Text("Setting", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: theme.textPrimary),),
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20 , vertical: 10),
@@ -81,12 +84,12 @@ class _SettingPageState extends State<SettingPage> {
               padding: const EdgeInsets.only(top: 5),
               child: TextField(
                 controller: _searchController,
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(color: theme.textPrimary),
                 decoration: InputDecoration(
                   hintText: "Search for a setting...",
-                  hintStyle: TextStyle(color: Colors.grey[500]),
+                  hintStyle: TextStyle(color: theme.textSecondary),
                   filled: true,
-                  fillColor: Colors.grey[850],
+                  fillColor: theme.bgSecondary,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
@@ -104,7 +107,7 @@ class _SettingPageState extends State<SettingPage> {
 
             const SizedBox(height: 30,),
             
-            Text("General", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),),
+            Text("General", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: theme.textSecondary),),
             const SizedBox(height: 10),
 
             Expanded(
@@ -113,9 +116,9 @@ class _SettingPageState extends State<SettingPage> {
                           .toLowerCase()
                           .contains(_searchQuery))
                       .isEmpty
-                  ? const Center(
+                  ? Center(
                       child: Text("No results found",
-                          style: TextStyle(color: Colors.grey)),
+                          style: TextStyle(color: theme.textSecondary, fontSize: 16)),
                     )
                   : ListView(
                       children: _settingItems
@@ -128,7 +131,7 @@ class _SettingPageState extends State<SettingPage> {
                                 title: Text(item['title'] as String,
                                     style: TextStyle(color: item['color'] as Color)),
                                 onTap: () => _handleTap(item['title'] as String),
-                                tileColor: _bg,
+                                tileColor: theme.bg,
                               ))
                           .toList(),
                     ),
@@ -140,6 +143,7 @@ class _SettingPageState extends State<SettingPage> {
   }
 
   void _handleTap(String title) {
+  final theme = context.read<ThemeProvider>().current;
   switch (title) {
     case 'Account':
       Navigator.push(context,
@@ -149,21 +153,21 @@ class _SettingPageState extends State<SettingPage> {
       showDialog<bool>(
         context: context,
         builder: (context) => AlertDialog(
-          backgroundColor: const Color(0xFF1A1F35),
+          backgroundColor:  theme.bg,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: const Text("Enable Notifications",
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-          content: const Text(
+          title: Text("Enable Notifications",
+              style: TextStyle(color: theme.textPrimary, fontWeight: FontWeight.bold)),
+          content: Text(
               "Allow Keep Healthy to send you health reminders and updates?",
-              style: TextStyle(color: Colors.grey)),
+              style: TextStyle(color: theme.textSecondary)),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text("Cancel", style: TextStyle(color: Colors.grey)),
+              child: Text("Cancel", style: TextStyle(color: theme.textSecondary)),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text("Allow", style: TextStyle(color: Color(0xFF4F8EF7))),
+              child:  Text("Allow", style: TextStyle(color: theme.accent)),
             ),
           ],
         ),
@@ -178,7 +182,7 @@ class _SettingPageState extends State<SettingPage> {
       final themeProvider = context.read<ThemeProvider>();
       showModalBottomSheet(
         context: context,
-        backgroundColor: const Color(0xFF1A1F35),
+        backgroundColor: theme.bg,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
@@ -191,20 +195,26 @@ class _SettingPageState extends State<SettingPage> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Choose Theme",
+                 Text("Choose Theme",
                       style: TextStyle(
-                          color: Colors.white,
+                          color: theme.textPrimary,
                           fontSize: 18,
                           fontWeight: FontWeight.bold)),
                   const SizedBox(height: 16),
                   ...AppThemes.all.map((t) => ListTile(
                         leading: CircleAvatar(
-                            backgroundColor: t.accent, radius: 14),
+                            backgroundColor: t.bg, radius: 14, child: Container(decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: t.accent,
+                                width: 1.5,
+                              ),
+                            ))),
                         title: Text(t.name,
-                            style: const TextStyle(color: Colors.white)),
+                            style: TextStyle(color: theme.textPrimary)),
                         trailing: provider.current.id == t.id
-                            ? const Icon(Icons.check_rounded,
-                                color: Colors.white)
+                            ?  Icon(Icons.check_rounded,
+                                color: theme.accent)
                             : null,
                         onTap: () {
                           provider.setTheme(t);
@@ -222,33 +232,33 @@ class _SettingPageState extends State<SettingPage> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          backgroundColor: const Color(0xFF1A1F35),
+          backgroundColor: theme.bg,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: const Text("Help & Support",
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-          content: const Column(
+          title: Text("Help & Support",
+              style: TextStyle(color: theme.textPrimary, fontWeight: FontWeight.bold)),
+          content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Contact Support", style: TextStyle(color: Colors.grey)),
+              Text("Contact Support", style: TextStyle(color: theme.textSecondary)),
               SizedBox(height: 12),
               Row(children: [
                 Icon(Icons.email_rounded, color: Color(0xFF4F8EF7), size: 18),
                 SizedBox(width: 8),
-                Text("bostonkc55h4@gmail.com", style: TextStyle(color: Colors.white)),
+                Text("bostonkc55h4@gmail.com", style: TextStyle(color: theme.textPrimary)),
               ]),
               SizedBox(height: 8),
               Row(children: [
                 Icon(Icons.email_rounded, color: Color(0xFF4F8EF7), size: 18),
                 SizedBox(width: 8),
-                Text("atchira.p@ku.th", style: TextStyle(color: Colors.white)),
+                Text("atchira.p@ku.th", style: TextStyle(color: theme.textPrimary)),
               ]),
             ],
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("Close", style: TextStyle(color: Colors.grey)),
+              child: Text("Close", style: TextStyle(color: theme.textSecondary)),
             ),
           ],
         ),

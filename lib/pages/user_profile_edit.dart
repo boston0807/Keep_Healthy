@@ -176,6 +176,4 @@ class _UserProfileEditState extends State<UserProfileEdit> {
       ),
     );
   }
-
-  
 }

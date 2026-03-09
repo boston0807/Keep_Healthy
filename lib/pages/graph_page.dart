@@ -354,7 +354,7 @@ class _ChartCard extends StatelessWidget {
               drawVerticalLine: false,
               horizontalInterval: 25,
               getDrawingHorizontalLine: (v) => FlLine(
-                color: Colors.white.withOpacity(0.06),  // ***NOT SURE IF NEED TO FIX OR NAH***
+                color: Colors.white.withOpacity(0.06),  // ***NOT SURE IF NEED TO FIX TO BE AS A THEME OR NAH***
                 strokeWidth: 1,
               ),
             ),

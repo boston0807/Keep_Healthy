@@ -51,7 +51,7 @@ class _LoginPageState extends State<LoginPage> {
               child: TextField(
                 controller: emailController,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: theme.textPrimary),
+                style: TextStyle(color: Colors.black),
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
                   hintText: "Username",
@@ -69,7 +69,7 @@ class _LoginPageState extends State<LoginPage> {
               child: TextField(
                 controller: passwordController,
                 obscureText: true,
-                style: TextStyle(color: theme.textPrimary),
+                style: TextStyle(color: Colors.black),
                 textAlign: TextAlign.center,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),

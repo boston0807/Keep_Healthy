@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:keep_healthy/pages/dashboard_test.dart';
 import 'package:keep_healthy/pages/profile_page.dart';
 import 'package:keep_healthy/pages/setting_page.dart';
+import 'package:keep_healthy/pages/user_profile_edit.dart';
 import '../pages/menu_page.dart';
 import '../pages/dashboard_page.dart';
 import '../pages/camera_page.dart';

@@ -41,7 +41,7 @@ class DatabaseService {
     return user.doc(uID).update({'weight': weight});
   }
 
-  Future<void> updateUserUsername(String uID, double username){
+  Future<void> updateUserUsername(String uID, String username){
     return user.doc(uID).update({'username': username});
   }
 

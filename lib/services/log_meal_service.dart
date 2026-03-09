@@ -1,16 +1,16 @@
 import 'dart:convert';
-import '../models/food_nutriet.dart';
+import '../models/food_nutrient.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:io';
 
 class LogMealService {
-  static final String apiKey = "cd8370fb5987ae506757aa97938844d192b92ca5";
+  static final String apiKey = "6ff80e94d4c984eab08cbc03f2f1fbfeb3297336";
   static final String baseUrl = 'https://api.logmeal.com/v2';
 
   const LogMealService._();
 
-  static Future<String> getImageID(String imagePath) async{
+  static Future<RegonizeResult> getImageID(String imagePath) async{
     final url = Uri.parse("$baseUrl/image/segmentation/complete");
 
     final request = http.MultipartRequest('post', url);
@@ -21,7 +21,7 @@ class LogMealService {
     final respond = await http.Response.fromStream(streamRespond);
     if (respond.statusCode == 200){
       final data = jsonDecode(respond.body);
-      return data['imageId'].toString();
+      return RegonizeResult(imageID: (data['imageId']).toString(), menuName: data['segmentation_results'][0]['recognition_results'][0]['name']);
     } else if (respond.statusCode == 401){
       throw ("Invalid API key");
     } else if (respond.statusCode == 429){
@@ -37,20 +37,26 @@ class LogMealService {
     return base64Encode(imageByte);
   }
 
-    static Future<FoodNutriet> analyzeFood(String imagePath) async{
-      String imageID = await getImageID(imagePath);
-      return await getFoodNutrient(imageID);
+    static Future<FoodNutrient> analyzeFood(String imagePath) async{
+      RegonizeResult result = await getImageID(imagePath);
+      return await getFoodNutrient(result.imageID, result.menuName);
     }
 
-    static Future<FoodNutriet> getFoodNutrient(String imageID) async{
+    static Future<FoodNutrient> getFoodNutrient(String imageID, String menuName) async{
       final url = Uri.parse("$baseUrl/nutrition/recipe/nutritionalInfo");
       final respond = await http.post(url,headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $apiKey'}, body: jsonEncode({'imageId' : imageID}));
       if (respond.statusCode == 200){
         final data = jsonDecode(respond.body);
-        return FoodNutriet(data['nutritional_info']['calories'], data['nutritional_info']['totalNutrients']['PROCNT']["quantity"]);
+        return FoodNutrient(calories: data['nutritional_info']['calories'],protein:  data['nutritional_info']['totalNutrients']['PROCNT']["quantity"],fat: data['nutritional_info']['totalNutrients']['FAT']["quantity"],carb: data['nutritional_info']['totalNutrients']["CHOCDF"]["quantity"],sugar: data['nutritional_info']['totalNutrients']["SUGAR"]["quantity"],sodium: data['nutritional_info']['totalNutrients']["NA"]["quantity"], menuName: menuName);
       }else{ 
         throw respond.statusCode;
       }
     }
+}
 
+class RegonizeResult {
+  final String menuName;
+  final String imageID;
+
+  const RegonizeResult({required this.imageID, required this.menuName});
 }

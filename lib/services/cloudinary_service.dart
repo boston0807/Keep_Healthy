@@ -1,33 +1,64 @@
-import 'package:cloudinary_url_gen/cloudinary.dart';
-import 'package:cloudinary_url_gen/config/cloud_config.dart';
-import 'package:cloudinary_url_gen/transformation/transformation.dart';
-import 'package:cloudinary_api/uploader/uploader.dart';
-import 'package:cloudinary_api/src/request/model/uploader_params.dart';
-import 'package:cloudinary_url_gen/transformation/effect/effect.dart';
-import 'package:cloudinary_url_gen/transformation/resize/resize.dart';
-import 'dart:async';
-import 'dart:io';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class CloudinaryService {
-  final String apiKey = "581977842454375";
-  final String apiSercret = '0ujNmkLjrnRjvEWO7dsZgnb2STE';
-  late final cloudinary ;
+  final String cloudName = "keephealthy";
 
 
-  CloudinaryService();
+  Future<String?> uploadProfilePicture(String imagePath) async {
+    final url = Uri.parse(
+      "https://api.cloudinary.com/v1_1/$cloudName/image/upload",
+    );
 
-  void initCloudinaryService(){
-    cloudinary = Cloudinary.fromStringUrl("cloudinary:$apiKey:$apiSercret@keephealthy");
-    cloudinary.config.urlConfig.secure = true;
-  }
+    final request = http.MultipartRequest("POST", url);
 
-  Future<void> upload(File imageFile, String userID) async{
-    try{
-      final respond = await cloudinary.uploader().upload(imageFile, params: UploadParams(resourceType: 'image', folder: 'profile_picture', publicId: userID, overwrite: true, uniqueFilename: false,
-      useFilename: true, tags: ['profile', 'user']));
-      print(respond.secureUrl); 
-    } catch (e){
-      throw e.toString();
+    request.fields['upload_preset'] = "user_upload";
+
+    
+    request.files.add(
+      await http.MultipartFile.fromPath('file', imagePath),
+    );
+
+    final response = await request.send();
+    final respondBody = await response.stream.bytesToString();
+    if (response.statusCode == 200) {
+      final data = jsonDecode(respondBody);
+      print("Upload success");
+      return data['secure_url'];
+    } else {
+      print("Upload failed: ${response.statusCode}");
+      return null;
     }
   }
+
+    Future<String> uploadFoodNutrient(String imagePath, String docID) async {
+    final url = Uri.parse(
+      "https://api.cloudinary.com/v1_1/$cloudName/image/upload",
+    );
+
+    final request = http.MultipartRequest("POST", url);
+
+    request.fields['upload_preset'] = "food_picture_upload";
+    request.fields['public_id'] = docID;
+
+    request.files.add(
+      await http.MultipartFile.fromPath('file', imagePath),
+    );
+
+    final response = await request.send();
+    final respondBody = await response.stream.bytesToString();
+    if (response.statusCode == 200) {
+      final data = jsonDecode(respondBody);
+      print("Upload success");
+      return data['secure_url'];
+    } else {
+      print("Upload failed: ${response.statusCode}");
+      throw "Upload Failed";
+    }
+  }
+
+  Future<void> getSignature(String uID) async{
+
+  }
+
 }

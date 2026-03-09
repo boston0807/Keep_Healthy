@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:keep_healthy/pages/menu_page.dart';
 import 'package:keep_healthy/services/auth_service.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -18,6 +17,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final firstNameController = TextEditingController();
   final surNameController = TextEditingController();
   final passwordController = TextEditingController();
+  final weightController = TextEditingController();
   final passwordConfirmController = TextEditingController();
 
   @override
@@ -28,6 +28,7 @@ class _RegisterPageState extends State<RegisterPage> {
     surNameController.dispose();
     passwordController.dispose();
     passwordConfirmController.dispose();
+    weightController.dispose();
     super.dispose();
   }
 
@@ -36,20 +37,19 @@ class _RegisterPageState extends State<RegisterPage> {
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-
-            const SizedBox(height: 70),
-
             Image.asset(
               "assets/images/keep_healthy(nobg).png",
-              width: 225,
+              width: 175,
             ),
 
-            const SizedBox(height: 30),
+            const SizedBox(height: 10),
 
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -77,7 +77,7 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
             ),
 
-            const SizedBox(height: 40),
+            const SizedBox(height: 20),
 
             Row(
               children: [
@@ -113,7 +113,7 @@ class _RegisterPageState extends State<RegisterPage> {
               ],
             ),
 
-            const SizedBox(height: 40),
+            const SizedBox(height: 20),
 
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -128,7 +128,7 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
             ),
 
-            const SizedBox(height: 40),
+            const SizedBox(height: 20),
 
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -146,7 +146,21 @@ class _RegisterPageState extends State<RegisterPage> {
             const SizedBox(height: 20),
 
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 40),
+              padding: const EdgeInsets.symmetric(horizontal: 15),
+              child: TextField(
+                controller: weightController,
+                textAlign: TextAlign.center,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: "Pls enter your weight",
+                ),
+              ),
+            ),
+
+            SizedBox(height: 20),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 80),
               child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -158,10 +172,17 @@ class _RegisterPageState extends State<RegisterPage> {
                     final firstName = firstNameController.text;
                     final surName = surNameController.text;
                     final password = passwordController.text;
+                    final weight =  double.parse(weightController.text);
                     final passwordConfirm = passwordConfirmController.text;
 
+                    if (!AuthService.isValidPassword(password)) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Password must contain letters and numbers and be at least 8 characters")),
+                      );
+                      return;
+                    }
+
                     try{
-                      
                       await authService.register(
                       email,
                       username,
@@ -169,6 +190,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       surName,
                       password,
                       passwordConfirm,
+                      weight
                     );
                     
                       Navigator.pushNamedAndRemoveUntil(context, '/main-screen', (_) => false);
@@ -183,6 +205,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.grey[200],
                     foregroundColor: Colors.black,
+                    padding: EdgeInsets.symmetric(vertical: 15)
                   ),
 
                   child: const Text(

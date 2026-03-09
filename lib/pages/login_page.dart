@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:keep_healthy/pages/register_page.dart';
+import 'package:keep_healthy/services/database_service.dart';
+
 
 class LoginPage extends StatefulWidget {
 
@@ -48,9 +49,10 @@ class _LoginPageState extends State<LoginPage> {
               child: TextField(
                 controller: emailController,
                 textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.black),
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
-                  hintText: "Username",
+                  hintText: "Email",
                 ),
               ),
             ),
@@ -65,6 +67,7 @@ class _LoginPageState extends State<LoginPage> {
               child: TextField(
                 controller: passwordController,
                 obscureText: true,
+                style: TextStyle(color: Colors.black),
                 textAlign: TextAlign.center,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
@@ -85,9 +88,12 @@ class _LoginPageState extends State<LoginPage> {
                   onPressed: () async{
                     try{
                       await FirebaseAuth.instance.signInWithEmailAndPassword(email: emailController.text, password: passwordController.text);
+                      DatabaseService databaseService = DatabaseService();
+                      databaseService.updateUserEmail(FirebaseAuth.instance.currentUser!.uid, emailController.text);
                       Navigator.pushNamedAndRemoveUntil(context, '/main-screen', (_) => false);
                     }catch (e){
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Have some Error Please Check Your Password Or internet connection")));
+                      print(e);
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -165,13 +171,6 @@ class _LoginPageState extends State<LoginPage> {
             const SizedBox(
               height: 20,
             ),
-            Padding(padding: EdgeInsets.symmetric(horizontal: 30),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                IconButton(onPressed: () {}, icon: Image.asset("assets/images/google_icon.png",width: 24, height: 24,))
-              ],
-            ),)
           ],
         ),
       ),

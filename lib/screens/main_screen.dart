@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:keep_healthy/pages/dashboard_all.dart';
+import 'package:keep_healthy/pages/profile_page.dart';
 import 'package:keep_healthy/pages/setting_page.dart';
+import 'package:keep_healthy/providers/theme_provider.dart';
+import 'package:provider/provider.dart';
 import '../pages/menu_page.dart';
+import '../pages/dashboard_page.dart';
 import '../pages/camera_page.dart';
-import '../pages/dash_board.dart';
 import '../models/user.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
+
 class MainScreen extends StatefulWidget {
   final String nutrientImage;
   final int initializeIndex;
@@ -43,28 +48,28 @@ class _MainScreenState extends State<MainScreen> {
     User user = await User.createUser(uID); 
     setState(() {
     userAcc = user;
-    widgetOption = [MenuPage(user: userAcc!,), Text('Dashboard'), SizedBox(), SettingPage(user: userAcc!,), Text('Info')];
+    widgetOption = [MenuPage(user: userAcc!,), DashboardAll(user: userAcc!), SizedBox(), SettingPage(user: userAcc!,), ProfilePage(user: user)];
     });  
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<ThemeProvider>().current;
     return Scaffold(
-      appBar: AppBar(title: const Text('Keep Healthy')),
       body: (userAcc == null) ? 
-      const Center(
-        child: CircularProgressIndicator()
+       Center(
+        child: CircularProgressIndicator(),
         )
       :
       Center(
-        child: nutrientImagePath.isEmpty ? widgetOption[indexBottomNav] : DashBoard(imagePath: nutrientImagePath,)
+        child: nutrientImagePath.isEmpty ? widgetOption[indexBottomNav] : DashBoard(imagePath: nutrientImagePath,userWeight: userAcc!.weight, user: userAcc!, uID: auth.FirebaseAuth.instance.currentUser!.uid,)
       ),
       bottomNavigationBar: BottomNavigationBar(items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
         BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
         BottomNavigationBarItem(icon: Icon(Icons.camera), label: 'Camera'),
         BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Setting'),
-        BottomNavigationBarItem(icon: Icon(Icons.info), label: 'Info'),
+        BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
       ],
       type: BottomNavigationBarType.fixed,
       currentIndex: indexBottomNav,
@@ -82,7 +87,8 @@ class _MainScreenState extends State<MainScreen> {
       backgroundColor: const Color(0xFF10297B),
       selectedItemColor: Colors.white,
       unselectedItemColor: Colors.white70,
-      )
+      ),
+      backgroundColor: theme.bg,
     ); 
   }
 

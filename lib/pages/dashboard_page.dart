@@ -4,7 +4,7 @@ import 'package:keep_healthy/models/user.dart';
 import 'dart:io';
 import '../services/log_meal_service.dart';
 import 'dart:async';
-import '../services/database_service.dart';
+import '../providers/database_service.dart';
 import '../services/cloudinary_service.dart';
 
 class DashBoard extends StatefulWidget {

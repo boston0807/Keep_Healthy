@@ -513,12 +513,13 @@ class _MenuPageState extends State<MenuPage> {
   }
 
   Widget _buildAdvice(FoodNutrient? last) {
+    final theme = context.watch<ThemeProvider>().current;
   if (last == null || last.advice.isEmpty) {
     return Text(
       "No advice available",
       style: TextStyle(
         fontSize: 15,
-        color: Colors.amber[50],
+        color: theme.textPrimary,
       ),
     );
   }
@@ -534,8 +535,8 @@ class _MenuPageState extends State<MenuPage> {
             Text(
               "•",
               style: TextStyle(
-                fontSize: 18,
-                color: Colors.amber[200],
+                fontSize: 18, 
+                color: theme.textPrimary,
               ),
             ),
             const SizedBox(width: 10),
@@ -545,7 +546,7 @@ class _MenuPageState extends State<MenuPage> {
                 style: TextStyle(
                   fontSize: 15,
                   height: 1.4,
-                  color: Colors.amber[50],
+                  color: theme.textSecondary,
                 ),
               ),
             ),

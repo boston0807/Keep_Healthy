@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:keep_healthy/services/database_service.dart';
+import 'package:keep_healthy/providers/database_service.dart';
 import '../models/user.dart';
 import '../services/cloudinary_service.dart';
 import 'package:image_picker/image_picker.dart';

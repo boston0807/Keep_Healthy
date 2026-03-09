@@ -164,13 +164,6 @@ class _LoginPageState extends State<LoginPage> {
             const SizedBox(
               height: 20,
             ),
-            Padding(padding: EdgeInsets.symmetric(horizontal: 30),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                IconButton(onPressed: () {}, icon: Image.asset("assets/images/google_icon.png",width: 24, height: 24,))
-              ],
-            ),)
           ],
         ),
       ),

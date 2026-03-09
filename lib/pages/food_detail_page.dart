@@ -81,29 +81,37 @@ class FoodDetailPage extends StatelessWidget {
                         stops: [0.5, 1.0],
                       ),
                     ),
-                  ),
-                  Positioned(
-                    left: 20,
-                    right: 20,
-                    bottom: 20,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  ),  
+                ],
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      
                       children: [
                         Text(
                           food.menuName,
                           style: TextStyle(
                             color: theme.textPrimary,
-                            fontSize: 26,
+                            fontSize: 30,
                             fontWeight: FontWeight.w700,
                             letterSpacing: 0.4,
                           ),
                         ),
+                        SizedBox(width: 20,),
                         if (food.date != null) ...[
                           const SizedBox(height: 4),
                           Row(
                             children: [
                               Icon(Icons.calendar_today_rounded,
-                                  size: 13, color: theme.textSecondary),
+                                  size: 20, color: theme.textSecondary),
                               const SizedBox(width: 5),
                               Text(
                                 _formatDate(food.date!),
@@ -117,17 +125,6 @@ class FoodDetailPage extends StatelessWidget {
                         ],
                       ],
                     ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
                   _ScoreCard(
                     point: food.point,
                     pointColor: pointColor,
@@ -580,7 +577,7 @@ class AdviceSection extends StatelessWidget {
                     child: Text(
                       text,
                       style: TextStyle(
-                        color: theme.textSecondary,
+                        color: theme.textPrimary,
                         fontSize: 13,
                       ),
                     ),

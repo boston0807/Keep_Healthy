@@ -7,7 +7,7 @@ import '../models/user.dart' as app_user;
 import 'package:image_picker/image_picker.dart';
 import '../services/cloudinary_service.dart' ;
 import 'package:firebase_auth/firebase_auth.dart' as auth;
-import 'package:keep_healthy/services/database_service.dart';
+import 'package:keep_healthy/providers/database_service.dart';
 import 'dart:async';
 import '../services/notification_service.dart';
 import 'package:provider/provider.dart';

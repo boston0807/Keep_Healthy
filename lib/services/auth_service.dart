@@ -39,4 +39,20 @@ class AuthService {
 
     });
   }
+
+  static bool isValidPassword(String password) {
+    if (password.length < 8) return false;
+    bool hasLetter = false;
+    bool hasNumber = false;
+    for (int i = 0; i < password.length; i++) {
+      String c = password[i];
+      if ("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".contains(c)) {
+        hasLetter = true;
+      }
+      if ("0123456789".contains(c)) {
+        hasNumber = true;
+      }
+    }
+    return hasLetter && hasNumber;
+  }
 }

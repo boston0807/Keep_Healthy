@@ -6,17 +6,16 @@ import '../models/user.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import '../providers/theme_provider.dart';
 import 'package:provider/provider.dart';
-import '../config/theme_config.dart';
 
-class DashboardTest extends StatefulWidget {
+class DashboardAll extends StatefulWidget {
   final User user;
-  const DashboardTest({super.key, required this.user});
+  const DashboardAll({super.key, required this.user});
 
   @override
-  State<DashboardTest> createState() => _DashboardTestState();
+  State<DashboardAll> createState() => _DashboardAllState();
 }
 
-class _DashboardTestState extends State<DashboardTest> {
+class _DashboardAllState extends State<DashboardAll> {
   bool isFirstTime = false;
   late List<FoodNutrient> foodList;
   bool isLoading = true;
@@ -37,6 +36,7 @@ class _DashboardTestState extends State<DashboardTest> {
 
   Map<String, List<FoodNutrient>> get _grouped {
     final Map<String, List<FoodNutrient>> map = {};
+    foodList.sort((a, b) => b.date!.compareTo(a.date!));
     for (final f in foodList) {
       final d = f.date!;
       final key = "${_months[d.month]} ${d.year.toString()}";

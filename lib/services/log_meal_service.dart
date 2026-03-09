@@ -5,7 +5,7 @@ import 'dart:async';
 import 'dart:io';
 
 class LogMealService {
-  static final String apiKey = "cd8370fb5987ae506757aa97938844d192b92ca5";
+  static final String apiKey = "6ff80e94d4c984eab08cbc03f2f1fbfeb3297336";
   static final String baseUrl = 'https://api.logmeal.com/v2';
 
   const LogMealService._();

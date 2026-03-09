@@ -1,8 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../providers/theme_provider.dart';
-import '../config/theme_config.dart';
+import 'package:keep_healthy/services/database_service.dart';
+
 
 class LoginPage extends StatefulWidget {
 
@@ -21,7 +20,6 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context){
-    final theme = context.watch<ThemeProvider>().current;
     return Scaffold(
       backgroundColor: const Color.fromARGB(
         255,
@@ -90,9 +88,12 @@ class _LoginPageState extends State<LoginPage> {
                   onPressed: () async{
                     try{
                       await FirebaseAuth.instance.signInWithEmailAndPassword(email: emailController.text, password: passwordController.text);
+                      DatabaseService databaseService = DatabaseService();
+                      databaseService.updateUserEmail(FirebaseAuth.instance.currentUser!.uid, emailController.text);
                       Navigator.pushNamedAndRemoveUntil(context, '/main-screen', (_) => false);
                     }catch (e){
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Have some Error Please Check Your Password Or internet connection")));
+                      print(e);
                     }
                   },
                   style: ElevatedButton.styleFrom(

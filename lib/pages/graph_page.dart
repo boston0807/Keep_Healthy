@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:keep_healthy/models/food_nutrient.dart';
 import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
-import '../config/theme_config.dart';
 
 enum ViewMode { daily, weekly, monthly }
 
@@ -37,9 +36,18 @@ class _GraphPageState extends State<GraphPage> {
 
     switch (_viewMode) {
       case ViewMode.daily:
-        return sorted.map((f) {
+        final now = DateTime.now();
+        final today = sorted.where((f) {
           final d = f.date!;
-          return _DataPoint("${d.hour}:${d.minute}", f.point);
+          return d.year == now.year &&
+              d.month == now.month &&
+              d.day == now.day;
+        }).toList();
+        return today.map((f) {
+          final d = f.date!;
+          final hh = d.hour.toString().padLeft(2, '0');
+          final mm = d.minute.toString().padLeft(2, '0');
+          return _DataPoint("$hh:$mm", f.point);
         }).toList();
 
       case ViewMode.weekly:
@@ -50,10 +58,8 @@ class _GraphPageState extends State<GraphPage> {
 
         for (final f in sorted) {
           final d = f.date!;
-          
           if (d.isAfter(start.subtract(const Duration(days: 1))) &&
               d.isBefore(now.add(const Duration(days: 1)))) {
-
             final key = "${d.day}/${d.month}";
             groups.putIfAbsent(key, () => []);
             groups[key]!.add(f.point);
@@ -61,7 +67,6 @@ class _GraphPageState extends State<GraphPage> {
         }
 
         final keys = groups.keys.toList();
-
         return keys.map((k) {
           final avg = groups[k]!.reduce((a, b) => a + b) / groups[k]!.length;
           return _DataPoint(k, avg);
@@ -74,7 +79,7 @@ class _GraphPageState extends State<GraphPage> {
           "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         for (final f in sorted) {
           final d = f.date!;
-          final key = d.year * 100 + d.month;
+          final key = d.year * 100 + d.month; // ← key unique ต่อเดือน
           groups.putIfAbsent(key, () => []);
           groups[key]!.add(f.point);
           labels.putIfAbsent(
@@ -86,14 +91,6 @@ class _GraphPageState extends State<GraphPage> {
           return _DataPoint(labels[k]!, avg);
         }).toList();
     }
-  }
-
-  int _isoWeekKey(DateTime d) => d.year * 100 + _isoWeek(d);
-
-  int _isoWeek(DateTime d) {
-    final startOfYear = DateTime(d.year, 1, 1);
-    final diff = d.difference(startOfYear).inDays;
-    return ((diff + startOfYear.weekday - 1) / 7).floor() + 1;
   }
 
   @override
@@ -132,100 +129,121 @@ class _GraphPageState extends State<GraphPage> {
         ),
         centerTitle: true,
       ),
-      body: isEmpty
-          ? _emptyState()
-          : SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _ViewToggle(
-                    current: _viewMode,
-                    onChanged: (v) => setState(() => _viewMode = v),
-                  ),
-                  const SizedBox(height: 18),
-                  _ChartCard(spots: spots, data: data),
-                  const SizedBox(height: 20),
-                  _SectionLabel(
-                    label: _viewMode == ViewMode.daily
-                        ? "DAILY SUMMARY"
-                        : _viewMode == ViewMode.weekly
-                            ? "WEEKLY SUMMARY"
-                            : "MONTHLY SUMMARY",
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _ViewToggle(
+              current: _viewMode,
+              onChanged: (v) => setState(() => _viewMode = v),
+            ),
+            const SizedBox(height: 25),
+            if (isEmpty) ...[
+              SizedBox(
+                height: 300,
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      _MiniStat(
-                        label: "Best",
-                        value: maxPoint.toStringAsFixed(1),
-                        icon: Icons.emoji_events_rounded,
-                        color: _accent2,
-                      ),
-                      const SizedBox(width: 10),
-                      _MiniStat(
-                        label: "Lowest",
-                        value: minPoint.toStringAsFixed(1),
-                        icon: Icons.trending_down_rounded,
-                        color: _accent3,
-                      ),
-                      const SizedBox(width: 10),
-                      _MiniStat(
-                        label: "Average",
-                        value: avg.toStringAsFixed(1),
-                        icon: Icons.bar_chart_rounded,
-                        color: _accent1,
+                      Icon(Icons.bar_chart_rounded,
+                          size: 64, color: theme.textPrimary.withOpacity(0.2)),
+                      const SizedBox(height: 16),
+                      Text(
+                        "No data yet",
+                        style: TextStyle(
+                          color: theme.textPrimary.withOpacity(0.4),
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
-                  _GlassCard(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 14),
-                      child: Row(
+                ),
+              ),
+            ] else ...[
+              _ChartCard(spots: spots, data: data),
+              const SizedBox(height: 30),
+              _SectionLabel(
+                label: _viewMode == ViewMode.daily
+                    ? "DAILY SUMMARY"
+                    : _viewMode == ViewMode.weekly
+                        ? "WEEKLY SUMMARY"
+                        : "MONTHLY SUMMARY",
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  _MiniStat(
+                    label: "Best",
+                    value: maxPoint.toStringAsFixed(1),
+                    icon: Icons.emoji_events_rounded,
+                    color: _accent2,
+                  ),
+                  const SizedBox(width: 10),
+                  _MiniStat(
+                    label: "Lowest",
+                    value: minPoint.toStringAsFixed(1),
+                    icon: Icons.trending_down_rounded,
+                    color: _accent3,
+                  ),
+                  const SizedBox(width: 10),
+                  _MiniStat(
+                    label: "Average",
+                    value: avg.toStringAsFixed(1),
+                    icon: Icons.bar_chart_rounded,
+                    color: _accent1,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 30),
+              _GlassCard(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: _accent1.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(Icons.calculate_rounded,
+                            color: _accent1, size: 22),
+                      ),
+                      const SizedBox(width: 14),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: _accent1.withOpacity(0.15),
-                              borderRadius: BorderRadius.circular(12),
+                          Text(
+                            "Total Calculations",
+                            style: TextStyle(
+                              color: theme.textPrimary.withOpacity(0.45),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.8,
                             ),
-                            child: const Icon(Icons.calculate_rounded,
-                                color: _accent1, size: 22),
                           ),
-                          const SizedBox(width: 14),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Total Calculations",
-                                style: TextStyle(
-                                  color: theme.textPrimary.withOpacity(0.45),
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: 0.8,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                "${widget.usageCount} times",
-                                style: TextStyle(
-                                  color: theme.textPrimary,
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
+                          const SizedBox(height: 2),
+                          Text(
+                            "${widget.usageCount} times",
+                            style: TextStyle(
+                              color: theme.textPrimary,
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ],
                       ),
-                    ),
+                    ],
                   ),
-                  const SizedBox(height: 28),
-                ],
+                ),
               ),
-            ),
+              const SizedBox(height: 28),
+            ],
+          ],
+        ),
+      ),
     );
   }
 
@@ -260,8 +278,6 @@ class _ViewToggle extends StatelessWidget {
   final ValueChanged<ViewMode> onChanged;
 
   const _ViewToggle({required this.current, required this.onChanged});
-
-  static const _accent1 = Color(0xFF6C63FF);
 
   @override
   Widget build(BuildContext context) {
@@ -354,8 +370,7 @@ class _ChartCard extends StatelessWidget {
               drawVerticalLine: false,
               horizontalInterval: 25,
               getDrawingHorizontalLine: (v) => FlLine(
-                color: Colors.white.withOpacity(0.06),  // ***NOT SURE IF NEED TO FIX TO BE AS A THEME OR NAH***
-                strokeWidth: 1,
+                color: Colors.white.withOpacity(0.06),
               ),
             ),
             borderData: FlBorderData(show: false),

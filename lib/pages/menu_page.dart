@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:fl_chart/fl_chart.dart';
-import 'package:keep_healthy/first_time_exception.dart';
 import '../models/user.dart';
 import '../models/food_nutrient.dart';
 import 'package:image_picker/image_picker.dart';
@@ -62,41 +61,25 @@ class _MenuPageState extends State<MenuPage> {
   }
 
   List<FlSpot> get _spots {
-    DateTime now = DateTime.now();
-    DateTime start = now.subtract(const Duration(days: 6));
-    Map<String, List<double>> groups = {};
-    int i = 0;
-    while (i < foodList.length) {
-      FoodNutrient f = foodList[i];
-      DateTime d = f.date!;
-      if (d.isAfter(start.subtract(const Duration(days: 1))) &&
-          d.isBefore(now.add(const Duration(days: 1)))) {
-        String key = "${d.day}/${d.month}";
-        if (!groups.containsKey(key)) {
-          groups[key] = [];
-        }
-        groups[key]!.add(f.point);
-      }
-      i++;
-    }
-    List<String> keys = groups.keys.toList();
-    keys.sort();
-    List<FlSpot> spots = [];
-    int j = 0;
-    while (j < keys.length) {
-      String k = keys[j];
-      List<double> values = groups[k]!;
-      double sum = 0;
-      int p = 0;
-      while (p < values.length) {
-        sum = sum + values[p];
-        p++;
-      }
-      double avg = sum / values.length;
-      spots.add(FlSpot(j.toDouble(), avg));
-      j++;
-    }
-    return spots;
+    final last7 = foodList.length <= 7
+        ? foodList
+        : foodList.sublist(foodList.length - 7);
+
+    return last7.asMap().entries.map((e) {
+      final d = e.value.date!;
+      return FlSpot(e.key.toDouble(), e.value.point);
+    }).toList();
+  }
+
+  List<String> get _spotLabels {
+  final last7 = foodList.length <= 7
+      ? foodList
+      : foodList.sublist(foodList.length - 7);
+
+  return last7.map((f) {
+    final d = f.date!;
+    return "${d.day}/${d.month}";
+    }).toList();
   }
 
   @override
@@ -289,7 +272,7 @@ class _MenuPageState extends State<MenuPage> {
                                             padding:
                                                 const EdgeInsets.only(top: 5),
                                             child: Text(
-                                              "${d.day}/${d.month}",
+                                              _spotLabels[idx],
                                               style: TextStyle(
                                                   fontSize: 10,
                                                   color: theme.textSecondary),
@@ -375,7 +358,7 @@ class _MenuPageState extends State<MenuPage> {
                   Icon(
                     Icons.tips_and_updates_rounded,
                     color: Colors.orange.withOpacity(0.8),
-                    size: 26,
+                    size: 33,
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -423,7 +406,7 @@ class _MenuPageState extends State<MenuPage> {
     return Text(
       "No advice available",
       style: TextStyle(
-        fontSize: 15,
+        fontSize: 18,
         color: theme.textPrimary,
       ),
     );
@@ -440,7 +423,7 @@ class _MenuPageState extends State<MenuPage> {
             Text(
               "•",
               style: TextStyle(
-                fontSize: 18, 
+                fontSize: 16, 
                 color: theme.textPrimary,
               ),
             ),
@@ -449,7 +432,7 @@ class _MenuPageState extends State<MenuPage> {
               child: Text(
                 advice,
                 style: TextStyle(
-                  fontSize: 15,
+                  fontSize: 18,
                   height: 1.4,
                   color: theme.textPrimary,
                 ),

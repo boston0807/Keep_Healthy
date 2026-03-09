@@ -8,7 +8,6 @@ import 'dart:async';
 import '../services/database_service.dart';
 import '../services/cloudinary_service.dart';
 import '../providers/theme_provider.dart';
-import '../config/theme_config.dart';
 
 class DashBoard extends StatefulWidget {
   final User user;

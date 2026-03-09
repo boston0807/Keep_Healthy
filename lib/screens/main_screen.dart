@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:keep_healthy/pages/dashboard_test.dart';
+import 'package:keep_healthy/pages/dashboard_all.dart';
 import 'package:keep_healthy/pages/profile_page.dart';
 import 'package:keep_healthy/pages/setting_page.dart';
 import 'package:keep_healthy/providers/theme_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:keep_healthy/pages/user_profile_edit.dart';
 import '../pages/menu_page.dart';
 import '../pages/dashboard_page.dart';
 import '../pages/camera_page.dart';
@@ -49,7 +48,7 @@ class _MainScreenState extends State<MainScreen> {
     User user = await User.createUser(uID); 
     setState(() {
     userAcc = user;
-    widgetOption = [MenuPage(user: userAcc!,), DashboardTest(user: userAcc!), SizedBox(), SettingPage(user: userAcc!,), ProfilePage(user: user)];
+    widgetOption = [MenuPage(user: userAcc!,), DashboardAll(user: userAcc!), SizedBox(), SettingPage(user: userAcc!,), ProfilePage(user: user)];
     });  
   }
 

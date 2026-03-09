@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:keep_healthy/pages/account_page.dart';
-import 'package:keep_healthy/pages/user_profile_edit.dart';
-import 'dart:io';
 import 'dart:async';
 import '../models/user.dart' as app_user;
-import 'package:image_picker/image_picker.dart';
 import '../services/cloudinary_service.dart' ;
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:keep_healthy/services/database_service.dart';
-import 'dart:async';
 import '../services/notification_service.dart';
 import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';

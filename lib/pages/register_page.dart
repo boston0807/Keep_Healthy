@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:keep_healthy/pages/menu_page.dart';
 import 'package:keep_healthy/services/auth_service.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -176,8 +175,14 @@ class _RegisterPageState extends State<RegisterPage> {
                     final weight =  double.parse(weightController.text);
                     final passwordConfirm = passwordConfirmController.text;
 
+                    if (!AuthService.isValidPassword(password)) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Password must contain letters and numbers and be at least 8 characters")),
+                      );
+                      return;
+                    }
+
                     try{
-                      
                       await authService.register(
                       email,
                       username,

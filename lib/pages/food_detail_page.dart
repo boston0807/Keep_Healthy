@@ -1,6 +1,5 @@
 import "package:flutter/material.dart";
 import '../models/food_nutrient.dart';
-import '../config/theme_config.dart';
 import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
 
@@ -50,8 +49,11 @@ class FoodDetailPage extends StatelessWidget {
               child: CircleAvatar(
                 backgroundColor: theme.card.withOpacity(0.85),
                 child: IconButton(
-                  icon: Icon(Icons.arrow_back_ios_new_rounded,
-                      color: theme.textPrimary, size: 18),
+                  icon: Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    color: theme.textPrimary,
+                    size: 18,
+                  ),
                   onPressed: () => Navigator.pop(context),
                 ),
               ),
@@ -68,7 +70,6 @@ class FoodDetailPage extends StatelessWidget {
                               _placeholderImage(theme),
                         )
                       : _placeholderImage(theme),
-
                   const DecoratedBox(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -81,56 +82,61 @@ class FoodDetailPage extends StatelessWidget {
                         stops: [0.5, 1.0],
                       ),
                     ),
-                  ),  
+                  ),
                 ],
               ),
             ),
           ),
+        
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      
+                  Text(
+                    food.menuName,
+                    style: TextStyle(
+                      color: theme.textPrimary,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.4,
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  if (food.date != null) ...[
+                    const SizedBox(height: 4),
+                    Row(
                       children: [
+                        Icon(
+                          Icons.calendar_today_rounded,
+                          size: 20,
+                          color: theme.textSecondary,
+                        ),
+                        const SizedBox(width: 5),
                         Text(
-                          food.menuName,
+                          _formatDate(food.date!),
                           style: TextStyle(
-                            color: theme.textPrimary,
-                            fontSize: 30,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.4,
+                            color: theme.textSecondary,
+                            fontSize: 13,
                           ),
                         ),
-                        SizedBox(width: 20,),
-                        if (food.date != null) ...[
-                          const SizedBox(height: 4),
-                          Row(
-                            children: [
-                              Icon(Icons.calendar_today_rounded,
-                                  size: 20, color: theme.textSecondary),
-                              const SizedBox(width: 5),
-                              Text(
-                                _formatDate(food.date!),
-                                style: TextStyle(
-                                  color: theme.textSecondary,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
                       ],
                     ),
+                  ],
+
+                  SizedBox(height: 15,),
+
                   _ScoreCard(
                     point: food.point,
                     pointColor: pointColor,
                     pointLabel: pointLabel,
                   ),
+
                   const SizedBox(height: 24),
+
                   Text(
                     "NUTRITION FACTS",
                     style: TextStyle(
@@ -140,9 +146,13 @@ class FoodDetailPage extends StatelessWidget {
                       letterSpacing: 2,
                     ),
                   ),
+
                   const SizedBox(height: 12),
+
                   _CalorieRow(calories: food.calories),
+
                   const SizedBox(height: 12),
+
                   GridView.count(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
@@ -181,10 +191,16 @@ class FoodDetailPage extends StatelessWidget {
                       ),
                     ],
                   ),
+
                   const SizedBox(height: 12),
+
                   _SodiumRow(sodium: food.sodium),
+
                   const SizedBox(height: 24),
-                  AdviceSection(advice: food.getAdvice(weight),),
+
+                  AdviceSection(
+                    advice: food.getAdvice(weight),
+                  ),
                 ],
               ),
             ),
@@ -304,10 +320,6 @@ class _ScoreCard extends StatelessWidget {
 
 class _CalorieRow extends StatelessWidget {
   final double calories;
-  static const _card = Color(0xFF1A1F35);
-  static const _accent = Color(0xFF4F8EF7);
-  static const _textPrimary = Color(0xFFEEF0F8);
-  static const _textSecondary = Color(0xFF7B82A3);
 
   const _CalorieRow({required this.calories});
 
@@ -578,7 +590,7 @@ class AdviceSection extends StatelessWidget {
                       text,
                       style: TextStyle(
                         color: theme.textPrimary,
-                        fontSize: 13,
+                        fontSize: 16,
                       ),
                     ),
                   ),

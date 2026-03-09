@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import '../models/user.dart' as app_user;
 import '../providers/theme_provider.dart';
 import '../config/theme_config.dart';
 import '../services/database_service.dart';
+import '../services/auth_service.dart';
 
 class AccountPage extends StatefulWidget {
   final app_user.User user;
@@ -16,9 +16,6 @@ class AccountPage extends StatefulWidget {
 }
 
 class _AccountPageState extends State<AccountPage> {
-  static const _errorColor = Color(0xFFFF5C6A);
-  static const _successColor = Color(0xFF3ECFA3);
-
   late TextEditingController _usernameController;
   late TextEditingController _firstNameController;
   late TextEditingController _surNameController;
@@ -92,6 +89,7 @@ class _AccountPageState extends State<AccountPage> {
     if (email != firebaseUser.email) {
       await firebaseUser.verifyBeforeUpdateEmail(email);
       _showSnackbar("Verification email sent");
+      
     }
 
     if (!mounted) return;
@@ -209,8 +207,14 @@ class _AccountPageState extends State<AccountPage> {
                 return;
               }
 
-              try {
+              if (!AuthService.isValidPassword(newPass)) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Password must contain letters and numbers and be at least 8 characters")),
+                );
+                return;
+              }
 
+              try {
                 final user = auth.FirebaseAuth.instance.currentUser!;
 
                 final cred = auth.EmailAuthProvider.credential(
@@ -239,7 +243,7 @@ class _AccountPageState extends State<AccountPage> {
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text("Error: $e"),
+                      content: Text("Error: pls check your password and internet then try again"),
                     ),
                   );
                 }
@@ -570,62 +574,6 @@ class _EditableRow extends StatelessWidget {
                   ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-
-class _DialogTextField extends StatelessWidget {
-  final TextEditingController controller;
-  final String label;
-  final AppTheme theme;
-  final bool isPassword;
-  final bool isVisible;
-  final VoidCallback? onToggle;
-  final TextInputType keyboardType;
-
-  const _DialogTextField({
-    required this.controller,
-    required this.label,
-    required this.theme,
-    this.isPassword = false,
-    this.isVisible = true,
-    this.onToggle,
-    this.keyboardType = TextInputType.text,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      obscureText: isPassword && !isVisible,
-      keyboardType: keyboardType,
-      style: TextStyle(color: theme.textPrimary, fontSize: 14),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: TextStyle(color: theme.textSecondary, fontSize: 13),
-        filled: true,
-        fillColor: theme.bg,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: theme.accent, width: 1.5),
-        ),
-        suffixIcon: isPassword && onToggle != null
-            ? IconButton(
-                icon: Icon(
-                  isVisible ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-                  color: theme.textSecondary,
-                  size: 18,
-                ),
-                onPressed: onToggle,
-              )
-            : null,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
     );
   }

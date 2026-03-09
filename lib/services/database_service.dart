@@ -56,4 +56,6 @@ class DatabaseService {
   Future<void> updateUserEmail(String uID, String email){
     return user.doc(uID).update({"email": email});
   }
+
+
 }

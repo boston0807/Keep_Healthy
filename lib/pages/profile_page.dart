@@ -6,7 +6,6 @@ import '../services/cloudinary_service.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import '../providers/theme_provider.dart';
-import '../config/theme_config.dart';
 
 class ProfilePage extends StatefulWidget {
   final User user;

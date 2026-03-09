@@ -103,8 +103,9 @@ class _MenuPageState extends State<MenuPage> {
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().current;
     if (widget.user == null || isLoading) {
-      return const Scaffold(
+      return Scaffold(
         body: Center(child: CircularProgressIndicator()),
+        backgroundColor: theme.bg,
     );
   }
 
@@ -450,7 +451,7 @@ class _MenuPageState extends State<MenuPage> {
                 style: TextStyle(
                   fontSize: 15,
                   height: 1.4,
-                  color: theme.textSecondary,
+                  color: theme.textPrimary,
                 ),
               ),
             ),
@@ -489,20 +490,77 @@ class _MenuPageState extends State<MenuPage> {
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: theme.textSecondary.withOpacity(0.15)),
       ),
-      child: Row(
-        children: [
-          ClipRRect(
-            borderRadius:
-                const BorderRadius.horizontal(left: Radius.circular(24)),
-            child: Image.network(
-              last.imageUrl,
-              width: 130,
-              height: 130,
-              fit: BoxFit.cover,
+      child: Container(
+              decoration: BoxDecoration(
+                color: theme.card,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                    color: theme.textSecondary.withOpacity(0.15)),
+                boxShadow: [
+                  BoxShadow(
+                    color: _teal.withOpacity(0.08),
+                    blurRadius: 18,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: const BorderRadius.horizontal(
+                        left: Radius.circular(24)),
+                    child: Image.network(
+                      last.imageUrl,
+                      width: 130,
+                      height: 130,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Container(
+                        width: 130,
+                        height: 130,
+                        color: theme.textSecondary.withOpacity(0.08),
+                        child: Icon(Icons.broken_image_rounded,
+                            color: theme.textSecondary, size: 32),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 18),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "${last.date!.day}/${last.date!.month}/${last.date!.year}",
+                            style: TextStyle(
+                                color: theme.textSecondary,
+                                fontSize: 12),
+                          ),
+                          const SizedBox(height: 10),
+                          Row(
+                            children: [
+                              _nutrientChip(Icons.egg_rounded,
+                                  "${last.protein.toStringAsFixed(1)}g",
+                                  _purple),
+                              const SizedBox(width: 10),
+                              _nutrientChip(Icons.water_drop_rounded,
+                                  "${last.fat.toStringAsFixed(1)}g",
+                                  _pink),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          _nutrientChip(
+                              Icons.local_fire_department_rounded,
+                              "${last.calories.toStringAsFixed(0)} kcal",
+                              Colors.orange),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
     );
   }
 }
